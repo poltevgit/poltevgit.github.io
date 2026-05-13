@@ -6,6 +6,9 @@
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     
+    <!-- Добавляем компонент для загрузки GLTF -->
+    <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -14,7 +17,6 @@
             user-select: none;
         }
 
-        /* Кнопка показа/скрытия меню */
         .toggle-menu-btn {
             position: fixed;
             top: 20px;
@@ -38,7 +40,6 @@
             color: black;
         }
 
-        /* Кнопка закрепления объекта */
         .pin-object-btn {
             position: fixed;
             top: 20px;
@@ -68,7 +69,6 @@
             color: black;
         }
 
-        /* Панель выбора блюд */
         .menu-panel {
             position: fixed;
             bottom: 20px;
@@ -120,7 +120,6 @@
             box-shadow: 0 0 12px rgba(230,126,34,0.5);
         }
 
-        /* Инфо-панель с БЖУ */
         .info-card {
             position: fixed;
             top: 70px;
@@ -208,7 +207,6 @@
             transition: opacity 0.3s ease;
         }
         
-        /* Область для AR */
         #arScene {
             position: fixed;
             top: 0;
@@ -218,7 +216,6 @@
             z-index: 1;
         }
         
-        /* Все UI элементы выше AR */
         .toggle-menu-btn, .pin-object-btn, .menu-panel, .info-card, .badge, .warning {
             z-index: 200;
         }
@@ -226,101 +223,113 @@
 </head>
 <body style="margin: 0; overflow: hidden;">
 
-    <!-- Кнопка скрытия/показа меню -->
     <button class="toggle-menu-btn" id="toggleMenuBtn">🙈 Скрыть меню</button>
-
-    <!-- Кнопка закрепления объекта -->
     <button class="pin-object-btn" id="pinObjectBtn">📍 Закрепить</button>
 
-    <!-- Инфо-панель -->
     <div class="info-card" id="infoCard">
         <h3 id="dishName">🍔 Бургер</h3>
-        <div class="calories" id="calories">450 <span>ккал</span></div>
+        <div class="calories" id="calories">520 <span>ккал</span></div>
         <div class="macro" id="macro">
-            <div>🥩 Б: 25г</div>
-            <div>🧈 Ж: 22г</div>
-            <div>🍚 У: 35г</div>
+            <div>🥩 Б: 28г</div>
+            <div>🧈 Ж: 26г</div>
+            <div>🍚 У: 42г</div>
         </div>
         <div class="ingredients" id="ingredients">
-            Состав: говяжья котлета, сыр чеддер, салат, помидор, соус BBQ
+            Состав: говяжья котлета 150г, сыр чеддер, салат айсберг...
         </div>
     </div>
 
-    <!-- Панель выбора блюд -->
     <div class="menu-panel" id="menuPanel">
         <button class="menu-btn" data-dish="burger">🍔 Бургер</button>
         <button class="menu-btn" data-dish="pizza">🍕 Пицца</button>
-        <button class="menu-btn" data-dish="sushi">🍣 Роллы</button>
-        <button class="menu-btn" data-dish="salad">🥗 Цезарь</button>
-        <button class="menu-btn" data-dish="pasta">🍝 Карбонара</button>
-        <button class="menu-btn" data-dish="steak">🥩 Стейк</button>
-        <button class="menu-btn" data-dish="bowl">🥣 Йогурт</button>
         <button class="menu-btn" data-dish="coffee">☕ Латте</button>
-        <button class="menu-btn" data-dish="donut">🍩 Пончик</button>
-        <button class="menu-btn" data-dish="icecream">🍦 Пломбир</button>
     </div>
 
     <div class="badge">AR Меню • Наведи на маркер Hiro</div>
     <div class="warning" id="warningMsg">✨ Наведи камеру на маркер Hiro, чтобы начать</div>
 
-    <!-- AR СЦЕНА -->
     <a-scene id="arScene" embedded arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono;">
         
-        <!-- Маркер -->
+        <!-- Объявляем 3D модели GLTF (пути ведут в папку gltf) -->
+        <a-assets>
+            <a-asset-item id="burgerModel" src="gltf/burger.gltf"></a-asset-item>
+            <a-asset-item id="pizzaModel" src="gltf/pizza.gltf"></a-asset-item>
+            <a-asset-item id="coffeeModel" src="gltf/coffee.gltf"></a-asset-item>
+        </a-assets>
+        
         <a-marker id="hiroMarker" preset="hiro">
             
-            <!-- 3D-графика внутри маркера -->
-            <a-entity id="dishModel" position="0 0.5 0">
-                <!-- Бургер -->
-                <a-group id="burgerGroup">
-                    <a-cylinder color="#D2691E" radius="0.45" height="0.12" position="0 0 0"></a-cylinder>
-                    <a-cylinder color="#8B4513" radius="0.46" height="0.08" position="0 0.08 0"></a-cylinder>
-                    <a-cylinder color="#228B22" radius="0.44" height="0.05" position="0 0.16 0"></a-cylinder>
-                    <a-torus radius="0.44" radius-tubular="0.04" color="#FF6347" position="0 0.21 0"></a-torus>
-                    <a-cylinder color="#F4A460" radius="0.44" height="0.07" position="0 0.25 0"></a-cylinder>
-                    <a-cylinder color="#D2691E" radius="0.46" height="0.1" position="0 0.32 0"></a-cylinder>
-                    <a-sphere color="#FFD700" radius="0.08" position="0 0.38 0"></a-sphere>
-                </a-group>
-                <a-box id="pizzaModel" position="0 0.1 0" width="0.9" height="0.1" depth="0.9" color="#E67E22" visible="false"></a-box>
-                <a-box id="sushiModel" position="0 0.15 0" width="0.6" height="0.1" depth="0.4" color="#F5DEB3" visible="false"></a-box>
-                <a-box id="saladModel" position="0 0.2 0" width="0.7" height="0.15" depth="0.7" color="#32CD32" visible="false"></a-box>
-                <a-box id="pastaModel" position="0 0.1 0" width="0.6" height="0.12" depth="0.6" color="#FFD700" visible="false"></a-box>
-                <a-box id="steakModel" position="0 0.1 0" width="0.6" height="0.08" depth="0.5" color="#8B0000" visible="false"></a-box>
-                <a-box id="bowlModel" position="0 0.1 0" width="0.5" height="0.12" depth="0.5" color="#F0F8FF" visible="false"></a-box>
-                <a-box id="coffeeModel" position="0 0.15 0" width="0.35" height="0.2" depth="0.35" color="#6F4E37" visible="false"></a-box>
-                <a-box id="donutModel" position="0 0.1 0" width="0.5" height="0.1" depth="0.5" color="#FFB6C1" visible="false"></a-box>
-                <a-box id="icecreamModel" position="0 0.2 0" width="0.4" height="0.25" depth="0.4" color="#FFFACD" visible="false"></a-box>
+            <a-entity id="dishModel" position="0 0 0">
+                <!-- Бургер модель -->
+                <a-entity id="burgerEntity" 
+                    gltf-model="#burgerModel" 
+                    scale="0.8 0.8 0.8" 
+                    position="0 0.3 0"
+                    rotation="0 0 0"
+                    visible="true">
+                </a-entity>
+                
+                <!-- Пицца модель -->
+                <a-entity id="pizzaEntity" 
+                    gltf-model="#pizzaModel" 
+                    scale="0.8 0.8 0.8" 
+                    position="0 0.2 0"
+                    rotation="0 0 0"
+                    visible="false">
+                </a-entity>
+                
+                <!-- Кофе модель -->
+                <a-entity id="coffeeEntity" 
+                    gltf-model="#coffeeModel" 
+                    scale="0.8 0.8 0.8" 
+                    position="0 0.2 0"
+                    rotation="0 0 0"
+                    visible="false">
+                </a-entity>
             </a-entity>
 
-            <a-text id="dishText" value="🍔 Бургер" position="0 -0.3 0" color="white" scale="0.8 0.8 0.8" align="center" background="true" background-color="black" background-padding="0.2"></a-text>
+            <a-text id="dishText" value="🍔 Бургер" position="0 -0.5 0" color="white" scale="0.8 0.8 0.8" align="center" background="true" background-color="black" background-padding="0.2"></a-text>
         </a-marker>
 
-        <!-- Закреплённая группа -->
         <a-entity id="pinnedGroup" position="0 0 0" visible="false">
-            <a-entity id="pinnedModel" position="0 0.5 0"></a-entity>
-            <a-text id="pinnedText" value="" position="0 -0.3 0" color="white" scale="0.8 0.8 0.8" align="center" background="true" background-color="black" background-padding="0.2"></a-text>
+            <a-entity id="pinnedModel" position="0 0 0"></a-entity>
+            <a-text id="pinnedText" value="" position="0 -0.5 0" color="white" scale="0.8 0.8 0.8" align="center" background="true" background-color="black" background-padding="0.2"></a-text>
         </a-entity>
 
         <a-entity camera></a-entity>
     </a-scene>
 
     <script>
-        // БАЗА ДАННЫХ БЛЮД
         const dishes = {
-            burger: { name: "🍔 Чизбургер", calories: "520", protein: "28", fat: "26", carbs: "42", ingredients: "Говяжья котлета 150г, сыр чеддер, салат айсберг, помидор, маринованные огурцы, соус BBQ, булка с кунжутом" },
-            pizza: { name: "🍕 Пицца Маргарита", calories: "680", protein: "24", fat: "28", carbs: "75", ingredients: "Томатный соус, моцарелла, свежие томаты, базилик, оливковое масло, тесто на закваске" },
-            sushi: { name: "🍣 Роллы Филадельфия", calories: "380", protein: "18", fat: "16", carbs: "42", ingredients: "Рис, норвежский лосось, сливочный сыр, огурец, авокадо, нори, кунжут" },
-            salad: { name: "🥗 Цезарь с курицей", calories: "410", protein: "32", fat: "24", carbs: "18", ingredients: "Куриное филе, салат романо, пармезан, сухарики, соус Цезарь, перепелиное яйцо" },
-            pasta: { name: "🍝 Паста Карбонара", calories: "720", protein: "26", fat: "34", carbs: "72", ingredients: "Спагетти, гуанчиале, яйцо, пекорино романо, чёрный перец, пармезан" },
-            steak: { name: "🥩 Стейк Рибай", calories: "890", protein: "52", fat: "68", carbs: "2", ingredients: "Мраморная говядина (250г), розмарин, тимьян, чеснок, сливочное масло, трюфельный соус" },
-            bowl: { name: "🥣 Греческий йогурт с гранолой", calories: "320", protein: "15", fat: "12", carbs: "38", ingredients: "Натуральный йогурт 5%, гранола, свежие ягоды, мёд, семена чиа" },
-            coffee: { name: "☕ Латте", calories: "180", protein: "8", fat: "9", carbs: "14", ingredients: "Эспрессо, вспененное молоко 3.2%, сироп (по желанию), корица" },
-            donut: { name: "🍩 Пончик глазированный", calories: "350", protein: "5", fat: "18", carbs: "44", ingredients: "Дрожжевое тесто, шоколадная глазурь, кондитерская посыпка" },
-            icecream: { name: "🍦 Пломбир ванильный", calories: "220", protein: "4", fat: "14", carbs: "20", ingredients: "Натуральные сливки 33%, яичный желток, сахар, ванильный стручок" }
+            burger: { 
+                name: "🍔 Чизбургер", 
+                calories: "520", 
+                protein: "28", 
+                fat: "26", 
+                carbs: "42", 
+                ingredients: "Говяжья котлета 150г, сыр чеддер, салат айсберг, помидор, маринованные огурцы, соус BBQ, булка с кунжутом",
+                modelId: "burgerEntity"
+            },
+            pizza: { 
+                name: "🍕 Пицца Маргарита", 
+                calories: "680", 
+                protein: "24", 
+                fat: "28", 
+                carbs: "75", 
+                ingredients: "Томатный соус, моцарелла, свежие томаты, базилик, оливковое масло, тесто на закваске",
+                modelId: "pizzaEntity"
+            },
+            coffee: { 
+                name: "☕ Латте", 
+                calories: "180", 
+                protein: "8", 
+                fat: "9", 
+                carbs: "14", 
+                ingredients: "Эспрессо, вспененное молоко 3.2%, сироп (по желанию), корица",
+                modelId: "coffeeEntity"
+            }
         };
 
-        // Элементы
-        const infoCard = document.getElementById('infoCard');
         const dishNameEl = document.getElementById('dishName');
         const caloriesEl = document.getElementById('calories');
         const macroEl = document.getElementById('macro');
@@ -334,6 +343,19 @@
         const pinnedText = document.getElementById('pinnedText');
         const warningMsg = document.getElementById('warningMsg');
 
+        const models = {
+            burger: document.getElementById('burgerEntity'),
+            pizza: document.getElementById('pizzaEntity'),
+            coffee: document.getElementById('coffeeEntity')
+        };
+
+        let currentDish = 'burger';
+        let isPinned = false;
+        let isDragging = false;
+        let lastTouchX = 0;
+        let lastTouchY = 0;
+        let markerDetected = false;
+
         function showMessage(text, isTemp = true) {
             warningMsg.textContent = text;
             warningMsg.style.opacity = '1';
@@ -345,37 +367,6 @@
                 }, 3000);
             }
         }
-
-        // Модели
-        const models = {
-            burger: document.getElementById('burgerGroup'),
-            pizza: document.getElementById('pizzaModel'),
-            sushi: document.getElementById('sushiModel'),
-            salad: document.getElementById('saladModel'),
-            pasta: document.getElementById('pastaModel'),
-            steak: document.getElementById('steakModel'),
-            bowl: document.getElementById('bowlModel'),
-            coffee: document.getElementById('coffeeModel'),
-            donut: document.getElementById('donutModel'),
-            icecream: document.getElementById('icecreamModel')
-        };
-
-        const pinnedModels = {};
-        for (let key in models) {
-            if (models[key]) {
-                const clone = models[key].cloneNode(true);
-                clone.setAttribute('visible', false);
-                document.getElementById('pinnedModel').appendChild(clone);
-                pinnedModels[key] = clone;
-            }
-        }
-
-        let currentDish = 'burger';
-        let isPinned = false;
-        let isDragging = false;
-        let lastTouchX = 0;
-        let lastTouchY = 0;
-        let markerDetected = false;
 
         function selectDish(dishId) {
             currentDish = dishId;
@@ -393,14 +384,6 @@
                 if (models[key]) models[key].setAttribute('visible', 'false');
             }
             if (models[dishId]) models[dishId].setAttribute('visible', 'true');
-            
-            if (isPinned) {
-                for (let key in pinnedModels) {
-                    if (pinnedModels[key]) pinnedModels[key].setAttribute('visible', 'false');
-                }
-                if (pinnedModels[dishId]) pinnedModels[dishId].setAttribute('visible', 'true');
-                pinnedText.setAttribute('value', dish.name);
-            }
             
             document.querySelectorAll('.menu-btn').forEach(btn => {
                 btn.classList.remove('active');
@@ -472,15 +455,20 @@
                 const markerPosition = hiroMarker.object3D.position;
                 const markerRotation = hiroMarker.object3D.rotation;
                 
+                const pinnedModelContainer = document.getElementById('pinnedModel');
+                while (pinnedModelContainer.firstChild) {
+                    pinnedModelContainer.removeChild(pinnedModelContainer.firstChild);
+                }
+                
+                const currentModel = models[currentDish];
+                if (currentModel) {
+                    const clone = currentModel.cloneNode(true);
+                    clone.setAttribute('visible', 'true');
+                    pinnedModelContainer.appendChild(clone);
+                }
+                
                 pinnedGroup.object3D.position.copy(markerPosition);
                 pinnedGroup.object3D.rotation.copy(markerRotation);
-                
-                for (let key in pinnedModels) {
-                    pinnedModels[key].setAttribute('visible', 'false');
-                }
-                if (pinnedModels[currentDish]) {
-                    pinnedModels[currentDish].setAttribute('visible', 'true');
-                }
                 pinnedText.setAttribute('value', dishes[currentDish].name);
                 
                 pinnedGroup.setAttribute('visible', 'true');
@@ -489,14 +477,14 @@
                 isPinned = true;
                 pinBtn.textContent = '📍 Открепить';
                 pinBtn.classList.add('pinned');
-                showMessage('✅ Блюдо закреплено! Теперь можно убрать маркер. Води пальцем, чтобы перемещать.', true);
+                showMessage('✅ Блюдо закреплено! Теперь можно убрать маркер.', true);
             } else {
                 pinnedGroup.setAttribute('visible', 'false');
                 hiroMarker.setAttribute('visible', 'true');
                 isPinned = false;
                 pinBtn.textContent = '📍 Закрепить';
                 pinBtn.classList.remove('pinned');
-                showMessage('📍 Режим маркера. Нажми "Закрепить", чтобы зафиксировать блюдо в пространстве.', true);
+                showMessage('📍 Режим маркера. Нажми "Закрепить", чтобы зафиксировать блюдо.', true);
             }
         }
 
@@ -506,11 +494,11 @@
             if (menuHidden) {
                 menuPanel.classList.add('hidden');
                 toggleBtn.innerHTML = '🙉 Показать меню';
-                showMessage('📋 Меню скрыто. Нажмите "Показать меню", чтобы вернуть.', true);
+                showMessage('📋 Меню скрыто', true);
             } else {
                 menuPanel.classList.remove('hidden');
                 toggleBtn.innerHTML = '🙈 Скрыть меню';
-                showMessage('📋 Меню открыто. Выбирайте блюда!', true);
+                showMessage('📋 Меню открыто', true);
             }
         };
 
@@ -519,14 +507,12 @@
         });
 
         pinBtn.onclick = pinObject;
-
         selectDish('burger');
         
         document.addEventListener('touchstart', startDrag, { passive: false });
         document.addEventListener('touchmove', onDrag, { passive: false });
         document.addEventListener('touchend', endDrag);
         
-        // Отслеживание появления маркера
         setInterval(() => {
             if (!isPinned && hiroMarker.object3D && pinnedGroup) {
                 const pos = hiroMarker.object3D.position;
@@ -535,9 +521,6 @@
                     if (!markerDetected && (pos.x !== 0 || pos.z !== 0)) {
                         markerDetected = true;
                         showMessage('🎯 Маркер найден! Води пальцем, чтобы перемещать блюдо.', true);
-                        setTimeout(() => {
-                            warningMsg.style.opacity = '0.7';
-                        }, 4000);
                     }
                     pinnedGroup.object3D.position.copy(pos);
                     pinnedGroup.object3D.rotation.copy(rot);
@@ -547,10 +530,9 @@
             }
         }, 100);
         
-        // Приветственное сообщение с подсказкой
         setTimeout(() => {
             if (!markerDetected && !isPinned) {
-                showMessage('🔍 Наведите камеру на чёрно-белый маркер Hiro, чтобы появилось блюдо', false);
+                showMessage('🔍 Наведите камеру на чёрно-белый маркер Hiro', false);
             }
         }, 2000);
     </script>
