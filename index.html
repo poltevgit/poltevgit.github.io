@@ -1,365 +1,361 @@
-html_content = '''
 <!DOCTYPE html>
 <html>
 <head>
-
-    <!--
-    AR.js workshop
-    Author: Matt Nutsch
-    Date: 6-20-2018
-    Description: This is sample code for a workshop on developing an AR.js app.
-    Notes:
-    This code is based in part on Jerome Etienne's examples of AR.js at: https://github.com/jeromeetienne/AR.js/tree/master/aframe
-    It is also based in part on the AFrame documentation, available at: https://aframe.io/docs
-
-    Go to this URL to run this code in a mobile web browser: https://mnutsch.github.io/arjs_workshop/start/index.html
-    Download and print this image for the AR target marker: https://github.com/mnutsch/mnutsch.github.io/raw/master/arjs_workshop/start/Hiro%20pattern%20with%20border.pdf
-    -->
-    <!-- include a-frame -->
-    <script src="https://mnutsch.github.io/arjs_workshop/start/vendor/aframe/build/aframe.min.js"></script>
-
-    <!-- include ar.js for aframe -->
-    <script src='https://mnutsch.github.io/arjs_workshop/start/vendor/arjs/build/aframe-ar.js'></script>
-    <script>ARjs.Context.baseURL = 'https://mnutsch.github.io/arjs_workshop/start/vendor/three.js/'</script>
-    <!-- Note: the above libraries are included with absolute URL's, because Github.io seems to prefer those. Change them to relative URL's -->
-
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    
     <style>
-        /* ════════════════════════════════════════════════════════════ */
-        /*  FIXED UI ELEMENTS (outside the 3D scene)                  */
-        /* ════════════════════════════════════════════════════════════ */
-
-        /* Top-left status panel */
-        #ui-status {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            z-index: 10;
-            background: rgba(0, 0, 0, 0.7);
-            border: 1px solid #00ffcc;
-            border-radius: 8px;
-            padding: 12px 16px;
-            color: #00ffcc;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            font-size: 14px;
-            min-width: 180px;
-            backdrop-filter: blur(4px);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-            #ui-status .status-title {
-                font-weight: bold;
-                margin-bottom: 6px;
-                font-size: 16px;
-                color: #ffffff;
-            }
-
-            #ui-status .status-item {
-                display: flex;
-                justify-content: space-between;
-                margin: 4px 0;
-            }
-
-            #ui-status .status-label {
-                color: #aaaaaa;
-            }
-
-            #ui-status .status-value {
-                color: #00ffcc;
-                font-weight: bold;
-            }
-
-        /* Top-center instructions */
-        #ui-instructions {
+        /* Панель выбора блюд */
+        .menu-panel {
             position: fixed;
-            top: 10px;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 10;
-            background: rgba(0, 0, 0, 0.6);
+            z-index: 100;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(10px);
             border-radius: 20px;
-            padding: 8px 24px;
-            color: #ffffff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            font-size: 14px;
-            text-align: center;
-            backdrop-filter: blur(4px);
-        }
-
-        /* Top-right controls */
-        #ui-controls {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            z-index: 10;
+            padding: 12px 16px;
             display: flex;
-            flex-direction: column;
+            flex-wrap: wrap;
             gap: 8px;
+            justify-content: center;
+            max-width: 95%;
+            border: 1px solid rgba(255,255,255,0.2);
+            font-family: 'Segoe UI', system-ui, sans-serif;
         }
 
-            #ui-controls button {
-                background: rgba(0, 0, 0, 0.7);
-                border: 1px solid #ff6b6b;
-                border-radius: 6px;
-                color: #ff6b6b;
-                padding: 8px 14px;
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                font-size: 13px;
-                cursor: pointer;
-                transition: all 0.2s ease;
-                backdrop-filter: blur(4px);
-            }
-
-                #ui-controls button:hover {
-                    background: #ff6b6b;
-                    color: #000000;
-                }
-
-                #ui-controls button.secondary {
-                    border-color: #4ecdc4;
-                    color: #4ecdc4;
-                }
-
-                    #ui-controls button.secondary:hover {
-                        background: #4ecdc4;
-                        color: #000000;
-                    }
-
-        /* Bottom-left info panel */
-        #ui-info {
-            position: fixed;
-            bottom: 10px;
-            left: 10px;
-            z-index: 10;
-            background: rgba(0, 0, 0, 0.7);
-            border: 1px solid #ffd93d;
-            border-radius: 8px;
-            padding: 10px 14px;
-            color: #ffd93d;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        .menu-btn {
+            background: linear-gradient(135deg, #2c3e50, #1a1a2e);
+            border: none;
+            color: white;
+            padding: 8px 14px;
+            border-radius: 30px;
             font-size: 13px;
-            max-width: 250px;
-            backdrop-filter: blur(4px);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.15);
         }
 
-        /* Bottom-center action bar */
-        #ui-actionbar {
+        .menu-btn:hover {
+            transform: scale(1.05);
+            background: linear-gradient(135deg, #e67e22, #f39c12);
+        }
+
+        .menu-btn.active {
+            background: linear-gradient(135deg, #e67e22, #f39c12);
+            box-shadow: 0 0 12px rgba(230,126,34,0.5);
+        }
+
+        /* Инфо-панель с БЖУ */
+        .info-card {
             position: fixed;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10;
-            display: flex;
-            gap: 10px;
-            background: rgba(0, 0, 0, 0.6);
-            border-radius: 12px;
-            padding: 8px 16px;
-            backdrop-filter: blur(4px);
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 12px 18px;
+            color: white;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            max-width: 260px;
+            border-left: 4px solid #f39c12;
+            pointer-events: none;
         }
 
-            #ui-actionbar .action-btn {
-                width: 40px;
-                height: 40px;
-                border-radius: 50%;
-                border: 2px solid #ffffff;
-                background: rgba(255, 255, 255, 0.1);
-                color: #ffffff;
-                font-size: 18px;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                transition: all 0.2s ease;
-            }
+        .info-card h3 {
+            font-size: 16px;
+            margin-bottom: 6px;
+            color: #f39c12;
+        }
 
-                #ui-actionbar .action-btn:hover {
-                    background: rgba(255, 255, 255, 0.3);
-                    transform: scale(1.1);
-                }
+        .info-card .calories {
+            font-size: 22px;
+            font-weight: bold;
+            margin: 6px 0;
+        }
 
-                #ui-actionbar .action-btn.active {
-                    background: #00ffcc;
-                    border-color: #00ffcc;
-                    color: #000000;
-                }
+        .info-card .calories span {
+            font-size: 12px;
+            font-weight: normal;
+            color: #aaa;
+        }
 
-        /* Bottom-right FPS / debug panel */
-        #ui-debug {
+        .info-card .macro {
+            font-size: 12px;
+            display: flex;
+            gap: 12px;
+            margin: 8px 0;
+        }
+
+        .info-card .macro div {
+            background: rgba(255,255,255,0.1);
+            padding: 3px 8px;
+            border-radius: 20px;
+        }
+
+        .info-card .ingredients {
+            font-size: 11px;
+            color: #ccc;
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+
+        .badge {
             position: fixed;
             bottom: 10px;
             right: 10px;
-            z-index: 10;
-            background: rgba(0, 0, 0, 0.7);
-            border: 1px solid #a29bfe;
+            z-index: 100;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            font-size: 10px;
+            padding: 4px 8px;
             border-radius: 8px;
-            padding: 10px 14px;
-            color: #a29bfe;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            text-align: right;
-            backdrop-filter: blur(4px);
+            font-family: monospace;
         }
-
-            #ui-debug .debug-line {
-                margin: 2px 0;
-            }
     </style>
-
-    <script>
-        //wait until the page loads to perform the following
-        window.onload = function () {
-
-            var intervalLength = 20; //determines the speed of the animation (milliseconds to wait between ticks)
-
-            //define the scene, for ease of interacting with it
-            var scene = document.querySelector('a-scene');
-
-            //ADD JAVASCRIPT CODE HERE...
-
-            //Timer for animations
-            setInterval(function () {
-
-                //ADD CODE HERE TO DO THINGS...
-
-            }, intervalLength);
-
-        }
-    </script>
-
 </head>
+<body style="margin: 0; overflow: hidden;">
 
-<!-- start the body of your page -->
-<body style='margin : 0px; overflow: hidden;'>
-
-    <!-- ════════════════════════════════════════════════════════════ -->
-    <!--  FIXED UI ELEMENTS (placed OUTSIDE the <a-scene>)          -->
-    <!-- ════════════════════════════════════════════════════════════ -->
-    <!-- Top-left: Status Panel -->
-    <div id="ui-status">
-        <div class="status-title">📡 AR Status</div>
-        <div class="status-item">
-            <span class="status-label">Tracking:</span>
-            <span class="status-value" id="status-tracking">Active</span>
+    <!-- Инфо-панель -->
+    <div class="info-card" id="infoCard">
+        <h3 id="dishName">🍔 Бургер</h3>
+        <div class="calories" id="calories">450 <span>ккал</span></div>
+        <div class="macro" id="macro">
+            <div>🥩 Б: 25г</div>
+            <div>🧈 Ж: 22г</div>
+            <div>🍚 У: 35г</div>
         </div>
-        <div class="status-item">
-            <span class="status-label">Marker:</span>
-            <span class="status-value" id="status-marker">Hiro</span>
-        </div>
-        <div class="status-item">
-            <span class="status-label">Objects:</span>
-            <span class="status-value" id="status-objects">1</span>
+        <div class="ingredients" id="ingredients">
+            Состав: говяжья котлета, сыр чеддер, салат, помидор, соус BBQ
         </div>
     </div>
 
-    <!-- Top-center: Instructions -->
-    <div id="ui-instructions">
-        📷 Наведите камеру на маркер Hiro для запуска AR
+    <!-- Панель выбора блюд -->
+    <div class="menu-panel" id="menuPanel">
+        <button class="menu-btn" data-dish="burger">🍔 Бургер</button>
+        <button class="menu-btn" data-dish="pizza">🍕 Пицца Маргарита</button>
+        <button class="menu-btn" data-dish="sushi">🍣 Роллы Филадельфия</button>
+        <button class="menu-btn" data-dish="salad">🥗 Цезарь</button>
+        <button class="menu-btn" data-dish="pasta">🍝 Карбонара</button>
+        <button class="menu-btn" data-dish="steak">🥩 Стейк Рибай</button>
+        <button class="menu-btn" data-dish="bowl">🥣 Греческий йогурт</button>
+        <button class="menu-btn" data-dish="coffee">☕ Латте</button>
+        <button class="menu-btn" data-dish="donut">🍩 Пончик</button>
+        <button class="menu-btn" data-dish="icecream">🍦 Пломбир</button>
     </div>
 
-    <!-- Top-right: Control Buttons -->
-    <div id="ui-controls">
-        <button onclick="alert('Сброс камеры')">🔄 Сброс</button>
-        <button class="secondary" onclick="alert('Скрыть/показать объект')">👁️ Видимость</button>
-        <button onclick="alert('Сделать скриншот')">📸 Скриншот</button>
-    </div>
+    <div class="badge">AR Menu • Наведи на маркер Hiro</div>
 
-    <!-- Bottom-left: Info Panel -->
-    <div id="ui-info">
-        <strong>AR.js Workshop</strong><br>
-        Автор: Matt Nutsch<br>
-        Версия: 1.0<br>
-        Объект: Синий куб
-    </div>
+    <!-- AR СЦЕНА -->
+    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono;">
 
-    <!-- Bottom-center: Action Bar -->
-    <div id="ui-actionbar">
-        <button class="action-btn active" title="Поворот" onclick="toggleBtn(this)">↻</button>
-        <button class="action-btn" title="Масштаб" onclick="toggleBtn(this)">⤢</button>
-        <button class="action-btn" title="Цвет" onclick="toggleBtn(this)">🎨</button>
-        <button class="action-btn" title="Свет" onclick="toggleBtn(this)">💡</button>
-    </div>
+        <a-marker preset="hiro">
+            <!-- 3D Модель блюда (по умолчанию бургер) -->
+            <a-entity id="dishModel" position="0 0.5 0">
+                <!-- Бургер (сложная конструкция) -->
+                <a-group id="burgerGroup">
+                    <a-cylinder color="#D2691E" radius="0.45" height="0.12" position="0 0 0"></a-cylinder>
+                    <a-cylinder color="#8B4513" radius="0.46" height="0.08" position="0 0.08 0"></a-cylinder>
+                    <a-cylinder color="#228B22" radius="0.44" height="0.05" position="0 0.16 0"></a-cylinder>
+                    <a-torus radius="0.44" radius-tubular="0.04" color="#FF6347" position="0 0.21 0"></a-torus>
+                    <a-cylinder color="#F4A460" radius="0.44" height="0.07" position="0 0.25 0"></a-cylinder>
+                    <a-cylinder color="#D2691E" radius="0.46" height="0.1" position="0 0.32 0"></a-cylinder>
+                    <a-sphere color="#FFD700" radius="0.08" position="0 0.38 0"></a-sphere>
+                </a-group>
+                <!-- Остальные модели скрыты, показываются через JS -->
+                <a-box id="pizzaModel" position="0 0.1 0" width="0.9" height="0.1" depth="0.9" color="#E67E22" visible="false"></a-box>
+                <a-box id="sushiModel" position="0 0.15 0" width="0.6" height="0.1" depth="0.4" color="#F5DEB3" visible="false"></a-box>
+                <a-box id="saladModel" position="0 0.2 0" width="0.7" height="0.15" depth="0.7" color="#32CD32" visible="false"></a-box>
+                <a-box id="pastaModel" position="0 0.1 0" width="0.6" height="0.12" depth="0.6" color="#FFD700" visible="false"></a-box>
+                <a-box id="steakModel" position="0 0.1 0" width="0.6" height="0.08" depth="0.5" color="#8B0000" visible="false"></a-box>
+                <a-box id="bowlModel" position="0 0.1 0" width="0.5" height="0.12" depth="0.5" color="#F0F8FF" visible="false"></a-box>
+                <a-box id="coffeeModel" position="0 0.15 0" width="0.35" height="0.2" depth="0.35" color="#6F4E37" visible="false"></a-box>
+                <a-box id="donutModel" position="0 0.1 0" width="0.5" height="0.1" depth="0.5" color="#FFB6C1" visible="false"></a-box>
+                <a-box id="icecreamModel" position="0 0.2 0" width="0.4" height="0.25" depth="0.4" color="#FFFACD" visible="false"></a-box>
+            </a-entity>
 
-    <!-- Bottom-right: Debug Panel -->
-    <div id="ui-debug">
-        <div class="debug-line">FPS: <span id="fps-val">60</span></div>
-        <div class="debug-line">Entities: <span id="ent-val">3</span></div>
-        <div class="debug-line">Time: <span id="time-val">0.00s</span></div>
-    </div>
+            <a-text id="dishText" value="🍔 Бургер" position="0 -0.3 0" color="white" scale="0.8 0.8 0.8" align="center" background="true" background-color="black" background-padding="0.2"></a-text>
+        </a-marker>
 
-    <script>
-        // Simple toggle for action buttons
-        function toggleBtn(btn) {
-            btn.classList.toggle('active');
-        }
-
-        // Simple FPS counter simulation
-        var startTime = Date.now();
-        setInterval(function () {
-            var elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
-            document.getElementById('time-val').textContent = elapsed + 's';
-            document.getElementById('fps-val').textContent = Math.floor(58 + Math.random() * 4);
-        }, 500);
-    </script>
-
-    <!-- ════════════════════════════════════════════════════════════ -->
-    <!--  3D SCENE (AR.js + A-Frame)                                -->
-    <!-- ════════════════════════════════════════════════════════════ -->
-    <!-- Define your 3d scene and enabled ar.js -->
-    <a-scene debug embedded arjs='trackingMethod: best; debugUIEnabled: false;'>
-
-        <!-- Declare assets for use in the scene. -->
-        <a-assets timeout="1000">
-            <!-- Declare assets here. These are things like images or 3D models. -->
-            <!-- Example of how to declare a 3D model asset. -->
-            <!--<a-asset-item id="3DModel-obj" src="3Dmodel.obj"></a-asset-item preload="auto">-->
-            <!-- Example of how to declare a skin for a 3D model asset. -->
-            <!--<a-asset-item id="3DModel-mtl" src="3DModel.mtl"></a-asset-item>-->
-
-        </a-assets>
-
-        <!-- Create a anchor to attach your augmented reality -->
-        <a-anchor hit-testing-enabled='true'>
-
-            <!-- Add your augmented reality items here -->
-            <!-- example of basic text in 3D -->
-            <!-- see: https://github.com/aframevr/aframe/blob/master/docs/components/text.md -->
-            <!--<a-entity id="basicText" position='0 0 0' scale='1 1 1' color='red' text='value: Hello World;'></a-entity>-->
-            <!-- example of a basic plane. -->
-            <!-- see: https://aframe.io/docs/0.8.0 -->
-            <!--<a-plane color="blue" height="1" width="1" rotation="-90 0 0"></a-plane>-->
-            <!-- example of text fit onto a plane -->
-            <!--
-            <a-plane
-            id = "helloWorldPlane"
-            geometry="primitive: plane; width: 1; height: 1; height: auto"
-            material="opacity: 0.5; color: white;"
-            position='0 0.25 3'>
-              <a-entity id="planeText" scale='2 2 2' text="value: Hello World;" align-"center"></a-entity>
-            </a-plane>
-            -->
-            <!-- Basic Box -->
-            <!-- see: https://aframe.io/docs/0.8.0 -->
-            <a-box id="myBox" rotation="0 0 0" position='0 0.5 0' depth="1" height="1" width="1" material='opacity: 0.5; side:double; color:blue;'></a-box>
-
-            <!-- Basic Sphere -->
-            <!-- see: https://aframe.io/docs/0.8.0/primitives/a-sphere.html -->
-            <!--<a-sphere id="mySphere" position='0 0 0' color="yellow" radius="0.05"></a-sphere>-->
-            <!-- 3D Model example -->
-            <!-- see: https://aframe.io/docs/0.8.0/primitives/a-obj-model.html -->
-            <!--<a-obj-model id="my3DModel" src="#3DModel-obj" position="0 0 0" rotation="0 0 0" scale=".1 .1 .1" material="opacity: 0.9; side:double; color: orange;"></a-obj-model>-->
-            <!-- 3D Model example with skin -->
-            <!--<a-obj-model id="my3DModel" src="#3DModel-obj" mtl="#3DModel-mtl" position="0 0 0" rotation="0 0 0" scale="1 1 1" material="opacity: 1.0; side:double;"></a-obj-model>-->
-
-        </a-anchor>
-
-        <!-- Define a static camera -->
-        <a-camera-static />
-
+        <a-entity camera></a-entity>
     </a-scene>
 
+    <script>
+        // БАЗА ДАННЫХ БЛЮД
+        const dishes = {
+            burger: {
+                name: "🍔 Чизбургер",
+                calories: "520",
+                protein: "28",
+                fat: "26",
+                carbs: "42",
+                ingredients: "Говяжья котлета 150г, сыр чеддер, салат айсберг, помидор, маринованные огурцы, соус BBQ, булка с кунжутом"
+            },
+            pizza: {
+                name: "🍕 Пицца Маргарита",
+                calories: "680",
+                protein: "24",
+                fat: "28",
+                carbs: "75",
+                ingredients: "Томатный соус, моцарелла, свежие томаты, базилик, оливковое масло, тесто на закваске"
+            },
+            sushi: {
+                name: "🍣 Роллы Филадельфия",
+                calories: "380",
+                protein: "18",
+                fat: "16",
+                carbs: "42",
+                ingredients: "Рис, норвежский лосось, сливочный сыр, огурец, авокадо, нори, кунжут"
+            },
+            salad: {
+                name: "🥗 Цезарь с курицей",
+                calories: "410",
+                protein: "32",
+                fat: "24",
+                carbs: "18",
+                ingredients: "Куриное филе, салат романо, пармезан, сухарики, соус Цезарь, перепелиное яйцо"
+            },
+            pasta: {
+                name: "🍝 Паста Карбонара",
+                calories: "720",
+                protein: "26",
+                fat: "34",
+                carbs: "72",
+                ingredients: "Спагетти, гуанчиале, яйцо, пекорино романо, чёрный перец, пармезан"
+            },
+            steak: {
+                name: "🥩 Стейк Рибай",
+                calories: "890",
+                protein: "52",
+                fat: "68",
+                carbs: "2",
+                ingredients: "Мраморная говядина (250г), розмарин, тимьян, чеснок, сливочное масло, трюфельный соус"
+            },
+            bowl: {
+                name: "🥣 Греческий йогурт с гранолой",
+                calories: "320",
+                protein: "15",
+                fat: "12",
+                carbs: "38",
+                ingredients: "Натуральный йогурт 5%, гранола, свежие ягоды, мёд, семена чиа"
+            },
+            coffee: {
+                name: "☕ Латте",
+                calories: "180",
+                protein: "8",
+                fat: "9",
+                carbs: "14",
+                ingredients: "Эспрессо, вспененное молоко 3.2%, сироп (по желанию), корица"
+            },
+            donut: {
+                name: "🍩 Пончик глазированный",
+                calories: "350",
+                protein: "5",
+                fat: "18",
+                carbs: "44",
+                ingredients: "Дрожжевое тесто, шоколадная глазурь, кондитерская посыпка"
+            },
+            icecream: {
+                name: "🍦 Пломбир ванильный",
+                calories: "220",
+                protein: "4",
+                fat: "14",
+                carbs: "20",
+                ingredients: "Натуральные сливки 33%, яичный желток, сахар, ванильный стручок"
+            }
+        };
+
+        // Элементы инфо-панели
+        const infoCard = document.getElementById('infoCard');
+        const dishNameEl = document.getElementById('dishName');
+        const caloriesEl = document.getElementById('calories');
+        const macroEl = document.getElementById('macro');
+        const ingredientsEl = document.getElementById('ingredients');
+
+        // Модели
+        const models = {
+            burger: document.getElementById('burgerGroup'),
+            pizza: document.getElementById('pizzaModel'),
+            sushi: document.getElementById('sushiModel'),
+            salad: document.getElementById('saladModel'),
+            pasta: document.getElementById('pastaModel'),
+            steak: document.getElementById('steakModel'),
+            bowl: document.getElementById('bowlModel'),
+            coffee: document.getElementById('coffeeModel'),
+            donut: document.getElementById('donutModel'),
+            icecream: document.getElementById('icecreamModel')
+        };
+
+        const dishText = document.getElementById('dishText');
+
+        // Функция обновления UI и 3D
+        function selectDish(dishId) {
+            const dish = dishes[dishId];
+            if (!dish) return;
+
+            // Обновляем инфо-панель
+            dishNameEl.textContent = dish.name;
+            caloriesEl.innerHTML = `${dish.calories} <span>ккал</span>`;
+            macroEl.innerHTML = `
+                <div>🥩 Б: ${dish.protein}г</div>
+                <div>🧈 Ж: ${dish.fat}г</div>
+                <div>🍚 У: ${dish.carbs}г</div>
+            `;
+            ingredientsEl.textContent = `Состав: ${dish.ingredients}`;
+            
+            // Обновляем текст над блюдом
+            dishText.setAttribute('value', dish.name);
+            
+            // Прячем все модели
+            for (let key in models) {
+                if (models[key]) {
+                    models[key].setAttribute('visible', 'false');
+                }
+            }
+            
+            // Показываем выбранную модель
+            if (models[dishId]) {
+                models[dishId].setAttribute('visible', 'true');
+            }
+            
+            // Анимация выбора (подсветка кнопки)
+            document.querySelectorAll('.menu-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.dish === dishId) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // Навешиваем обработчики на кнопки
+        document.querySelectorAll('.menu-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                selectDish(btn.dataset.dish);
+            });
+        });
+
+        // Запускаем с бургером
+        selectDish('burger');
+        
+        // Небольшой эффект пульсации для информационной панели
+        setInterval(() => {
+            infoCard.style.transform = 'scale(1)';
+            setTimeout(() => {
+                infoCard.style.transform = 'scale(1)';
+            }, 100);
+        }, 3000);
+    </script>
 </body>
-
-</html>'''
-
-with open('/mnt/agents/output/index.html', 'w') as f:
-    f.write(html_content)
-
-print("File saved successfully!")
+</html>
