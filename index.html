@@ -107,6 +107,7 @@
             transition: all 0.2s ease;
             box-shadow: 0 2px 5px rgba(0,0,0,0.3);
             border: 1px solid rgba(255,255,255,0.15);
+            pointer-events: auto; /*确保按钮可点击 */
         }
 
         .menu-btn:hover {
@@ -202,6 +203,21 @@
             white-space: nowrap;
             pointer-events: none;
         }
+        
+        /* Область для AR (чтобы касания не блокировали кнопки) */
+        #arScene {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        /* Все UI элементы выше AR */
+        .toggle-menu-btn, .pin-object-btn, .menu-panel, .info-card, .badge, .warning {
+            z-index: 200;
+        }
     </style>
 </head>
 <body style="margin: 0; overflow: hidden;">
@@ -241,7 +257,7 @@
     </div>
 
     <div class="badge">AR Menu • Наведи на маркер Hiro</div>
-    <div class="warning" id="warningMsg">💡 Води пальцем по экрану, чтобы перемещать блюдо</div>
+    <div class="warning" id="warningMsg">💡 Води пальцем по экрану (не по кнопкам), чтобы перемещать блюдо</div>
 
     <!-- AR СЦЕНА -->
     <a-scene id="arScene" embedded arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono;">
@@ -374,10 +390,29 @@
             });
         }
 
-        // Перемещение пальцем (автоматически, без кнопок)
+        // Функция проверки — был ли клик по кнопке или меню
+        function isTouchOnUI(touchX, touchY) {
+            const elements = document.elementsFromPoint(touchX, touchY);
+            for (let el of elements) {
+                if (el.classList && (
+                    el.classList.contains('menu-btn') ||
+                    el.classList.contains('toggle-menu-btn') ||
+                    el.classList.contains('pin-object-btn') ||
+                    el.closest('.menu-panel')
+                )) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Перемещение пальцем (только если клик не по UI)
         function startDrag(e) {
-            isDragging = true;
             const touch = e.touches[0];
+            if (isTouchOnUI(touch.clientX, touch.clientY)) {
+                return; // Не мешаем кнопкам
+            }
+            isDragging = true;
             lastTouchX = touch.clientX;
             lastTouchY = touch.clientY;
             e.preventDefault();
@@ -412,7 +447,6 @@
 
         function endDrag(e) {
             isDragging = false;
-            e.preventDefault();
         }
 
         function pinObject() {
@@ -447,7 +481,7 @@
                 isPinned = false;
                 pinBtn.textContent = '📍 Закрепить';
                 pinBtn.classList.remove('pinned');
-                document.getElementById('warningMsg').textContent = '💡 Води пальцем по экрану, чтобы перемещать блюдо';
+                document.getElementById('warningMsg').textContent = '💡 Води пальцем по экрану (не по кнопкам), чтобы перемещать блюдо';
                 document.getElementById('warningMsg').style.opacity = '1';
             }
         }
@@ -472,7 +506,7 @@
 
         selectDish('burger');
         
-        // Автоматическое перемещение без кнопок
+        // Автоматическое перемещение без кнопок (но с проверкой на UI)
         document.addEventListener('touchstart', startDrag, { passive: false });
         document.addEventListener('touchmove', onDrag, { passive: false });
         document.addEventListener('touchend', endDrag);
