@@ -107,7 +107,7 @@
             transition: all 0.2s ease;
             box-shadow: 0 2px 5px rgba(0,0,0,0.3);
             border: 1px solid rgba(255,255,255,0.15);
-            pointer-events: auto; /*确保按钮可点击 */
+            pointer-events: auto;
         }
 
         .menu-btn:hover {
@@ -194,17 +194,21 @@
             left: 50%;
             transform: translateX(-50%);
             z-index: 100;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
             color: #ffaa00;
-            font-size: 11px;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-family: monospace;
+            font-size: 12px;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-family: 'Segoe UI', system-ui, sans-serif;
             white-space: nowrap;
             pointer-events: none;
+            border: 1px solid rgba(255,170,0,0.3);
+            font-weight: 500;
+            transition: opacity 0.3s ease;
         }
         
-        /* Область для AR (чтобы касания не блокировали кнопки) */
+        /* Область для AR */
         #arScene {
             position: fixed;
             top: 0;
@@ -256,8 +260,8 @@
         <button class="menu-btn" data-dish="icecream">🍦 Пломбир</button>
     </div>
 
-    <div class="badge">AR Menu • Наведи на маркер Hiro</div>
-    <div class="warning" id="warningMsg">💡 Води пальцем по экрану (не по кнопкам), чтобы перемещать блюдо</div>
+    <div class="badge">AR Меню • Наведи на маркер Hiro</div>
+    <div class="warning" id="warningMsg">✨ Наведи камеру на маркер Hiro, чтобы начать</div>
 
     <!-- AR СЦЕНА -->
     <a-scene id="arScene" embedded arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono;">
@@ -328,6 +332,19 @@
         const pinnedGroup = document.getElementById('pinnedGroup');
         const dishText = document.getElementById('dishText');
         const pinnedText = document.getElementById('pinnedText');
+        const warningMsg = document.getElementById('warningMsg');
+
+        function showMessage(text, isTemp = true) {
+            warningMsg.textContent = text;
+            warningMsg.style.opacity = '1';
+            if (isTemp) {
+                setTimeout(() => {
+                    if (warningMsg.textContent === text) {
+                        warningMsg.style.opacity = '0.7';
+                    }
+                }, 3000);
+            }
+        }
 
         // Модели
         const models = {
@@ -358,6 +375,7 @@
         let isDragging = false;
         let lastTouchX = 0;
         let lastTouchY = 0;
+        let markerDetected = false;
 
         function selectDish(dishId) {
             currentDish = dishId;
@@ -388,9 +406,10 @@
                 btn.classList.remove('active');
                 if (btn.dataset.dish === dishId) btn.classList.add('active');
             });
+            
+            showMessage(`🍽️ Выбрано: ${dish.name}`, true);
         }
 
-        // Функция проверки — был ли клик по кнопке или меню
         function isTouchOnUI(touchX, touchY) {
             const elements = document.elementsFromPoint(touchX, touchY);
             for (let el of elements) {
@@ -406,11 +425,10 @@
             return false;
         }
 
-        // Перемещение пальцем (только если клик не по UI)
         function startDrag(e) {
             const touch = e.touches[0];
             if (isTouchOnUI(touch.clientX, touch.clientY)) {
-                return; // Не мешаем кнопкам
+                return;
             }
             isDragging = true;
             lastTouchX = touch.clientX;
@@ -471,18 +489,14 @@
                 isPinned = true;
                 pinBtn.textContent = '📍 Открепить';
                 pinBtn.classList.add('pinned');
-                document.getElementById('warningMsg').textContent = '✅ Объект закреплён! Теперь можно убрать маркер. Води пальцем — перемещай!';
-                setTimeout(() => {
-                    document.getElementById('warningMsg').style.opacity = '0.5';
-                }, 3000);
+                showMessage('✅ Блюдо закреплено! Теперь можно убрать маркер. Води пальцем, чтобы перемещать.', true);
             } else {
                 pinnedGroup.setAttribute('visible', 'false');
                 hiroMarker.setAttribute('visible', 'true');
                 isPinned = false;
                 pinBtn.textContent = '📍 Закрепить';
                 pinBtn.classList.remove('pinned');
-                document.getElementById('warningMsg').textContent = '💡 Води пальцем по экрану (не по кнопкам), чтобы перемещать блюдо';
-                document.getElementById('warningMsg').style.opacity = '1';
+                showMessage('📍 Режим маркера. Нажми "Закрепить", чтобы зафиксировать блюдо в пространстве.', true);
             }
         }
 
@@ -492,9 +506,11 @@
             if (menuHidden) {
                 menuPanel.classList.add('hidden');
                 toggleBtn.innerHTML = '🙉 Показать меню';
+                showMessage('📋 Меню скрыто. Нажмите "Показать меню", чтобы вернуть.', true);
             } else {
                 menuPanel.classList.remove('hidden');
                 toggleBtn.innerHTML = '🙈 Скрыть меню';
+                showMessage('📋 Меню открыто. Выбирайте блюда!', true);
             }
         };
 
@@ -506,21 +522,37 @@
 
         selectDish('burger');
         
-        // Автоматическое перемещение без кнопок (но с проверкой на UI)
         document.addEventListener('touchstart', startDrag, { passive: false });
         document.addEventListener('touchmove', onDrag, { passive: false });
         document.addEventListener('touchend', endDrag);
         
+        // Отслеживание появления маркера
         setInterval(() => {
             if (!isPinned && hiroMarker.object3D && pinnedGroup) {
                 const pos = hiroMarker.object3D.position;
                 const rot = hiroMarker.object3D.rotation;
                 if (pos && (pos.x !== 0 || pos.y !== 0 || pos.z !== 0)) {
+                    if (!markerDetected && (pos.x !== 0 || pos.z !== 0)) {
+                        markerDetected = true;
+                        showMessage('🎯 Маркер найден! Води пальцем, чтобы перемещать блюдо.', true);
+                        setTimeout(() => {
+                            warningMsg.style.opacity = '0.7';
+                        }, 4000);
+                    }
                     pinnedGroup.object3D.position.copy(pos);
                     pinnedGroup.object3D.rotation.copy(rot);
+                } else {
+                    markerDetected = false;
                 }
             }
         }, 100);
+        
+        // Приветственное сообщение с подсказкой
+        setTimeout(() => {
+            if (!markerDetected && !isPinned) {
+                showMessage('🔍 Наведите камеру на чёрно-белый маркер Hiro, чтобы появилось блюдо', false);
+            }
+        }, 2000);
     </script>
 </body>
 </html>
