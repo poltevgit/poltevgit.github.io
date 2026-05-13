@@ -11,6 +11,61 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            user-select: none;
+        }
+
+        /* Кнопка показа/скрытия меню */
+        .toggle-menu-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 200;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid #f39c12;
+            border-radius: 50px;
+            padding: 10px 18px;
+            color: #f39c12;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            transition: all 0.2s;
+        }
+
+        .toggle-menu-btn:hover {
+            background: #f39c12;
+            color: black;
+        }
+
+        /* Кнопка закрепления объекта */
+        .pin-object-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 200;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid #4ecdc4;
+            border-radius: 50px;
+            padding: 10px 18px;
+            color: #4ecdc4;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            transition: all 0.2s;
+        }
+
+        .pin-object-btn.pinned {
+            background: #4ecdc4;
+            color: black;
+            border-color: white;
+        }
+
+        .pin-object-btn:hover {
+            background: #4ecdc4;
+            color: black;
         }
 
         /* Панель выбора блюд */
@@ -31,6 +86,13 @@
             max-width: 95%;
             border: 1px solid rgba(255,255,255,0.2);
             font-family: 'Segoe UI', system-ui, sans-serif;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .menu-panel.hidden {
+            transform: translateX(-50%) translateY(120%);
+            opacity: 0;
+            pointer-events: none;
         }
 
         .menu-btn {
@@ -45,6 +107,7 @@
             transition: all 0.2s ease;
             box-shadow: 0 2px 5px rgba(0,0,0,0.3);
             border: 1px solid rgba(255,255,255,0.15);
+            pointer-events: auto;
         }
 
         .menu-btn:hover {
@@ -60,7 +123,7 @@
         /* Инфо-панель с БЖУ */
         .info-card {
             position: fixed;
-            top: 20px;
+            top: 70px;
             left: 20px;
             z-index: 100;
             background: rgba(0,0,0,0.85);
@@ -124,9 +187,46 @@
             border-radius: 8px;
             font-family: monospace;
         }
+
+        .warning {
+            position: fixed;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            background: rgba(0,0,0,0.7);
+            color: #ffaa00;
+            font-size: 11px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-family: monospace;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+        
+        /* Область для AR */
+        #arScene {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        /* Все UI элементы выше AR */
+        .toggle-menu-btn, .pin-object-btn, .menu-panel, .info-card, .badge, .warning {
+            z-index: 200;
+        }
     </style>
 </head>
 <body style="margin: 0; overflow: hidden;">
+
+    <!-- Кнопка скрытия/показа меню -->
+    <button class="toggle-menu-btn" id="toggleMenuBtn">🙈 Скрыть меню</button>
+
+    <!-- Кнопка закрепления объекта -->
+    <button class="pin-object-btn" id="pinObjectBtn">📍 Закрепить</button>
 
     <!-- Инфо-панель -->
     <div class="info-card" id="infoCard">
@@ -145,26 +245,32 @@
     <!-- Панель выбора блюд -->
     <div class="menu-panel" id="menuPanel">
         <button class="menu-btn" data-dish="burger">🍔 Бургер</button>
-        <button class="menu-btn" data-dish="pizza">🍕 Пицца Маргарита</button>
-        <button class="menu-btn" data-dish="sushi">🍣 Роллы Филадельфия</button>
+        <button class="menu-btn" data-dish="pizza">🍕 Пицца</button>
+        <button class="menu-btn" data-dish="sushi">🍣 Роллы</button>
         <button class="menu-btn" data-dish="salad">🥗 Цезарь</button>
         <button class="menu-btn" data-dish="pasta">🍝 Карбонара</button>
-        <button class="menu-btn" data-dish="steak">🥩 Стейк Рибай</button>
-        <button class="menu-btn" data-dish="bowl">🥣 Греческий йогурт</button>
+        <button class="menu-btn" data-dish="steak">🥩 Стейк</button>
+        <button class="menu-btn" data-dish="bowl">🥣 Йогурт</button>
         <button class="menu-btn" data-dish="coffee">☕ Латте</button>
         <button class="menu-btn" data-dish="donut">🍩 Пончик</button>
         <button class="menu-btn" data-dish="icecream">🍦 Пломбир</button>
     </div>
 
     <div class="badge">AR Menu • Наведи на маркер Hiro</div>
+    <div class="warning" id="warningMsg">💡 Води пальцем по экрану (в любом месте), чтобы перемещать блюдо</div>
 
     <!-- AR СЦЕНА -->
-    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono;">
-
-        <a-marker preset="hiro">
-            <!-- 3D Модель блюда (по умолчанию бургер) -->
+    <a-scene id="arScene" 
+             vr-mode-ui="enabled: false"
+             embedded 
+             arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono;">
+        
+        <!-- Маркер -->
+        <a-marker id="hiroMarker" preset="hiro">
+            
+            <!-- 3D-графика внутри маркера -->
             <a-entity id="dishModel" position="0 0.5 0">
-                <!-- Бургер (сложная конструкция) -->
+                <!-- Бургер -->
                 <a-group id="burgerGroup">
                     <a-cylinder color="#D2691E" radius="0.45" height="0.12" position="0 0 0"></a-cylinder>
                     <a-cylinder color="#8B4513" radius="0.46" height="0.08" position="0 0.08 0"></a-cylinder>
@@ -174,7 +280,6 @@
                     <a-cylinder color="#D2691E" radius="0.46" height="0.1" position="0 0.32 0"></a-cylinder>
                     <a-sphere color="#FFD700" radius="0.08" position="0 0.38 0"></a-sphere>
                 </a-group>
-                <!-- Остальные модели скрыты, показываются через JS -->
                 <a-box id="pizzaModel" position="0 0.1 0" width="0.9" height="0.1" depth="0.9" color="#E67E22" visible="false"></a-box>
                 <a-box id="sushiModel" position="0 0.15 0" width="0.6" height="0.1" depth="0.4" color="#F5DEB3" visible="false"></a-box>
                 <a-box id="saladModel" position="0 0.2 0" width="0.7" height="0.15" depth="0.7" color="#32CD32" visible="false"></a-box>
@@ -189,100 +294,43 @@
             <a-text id="dishText" value="🍔 Бургер" position="0 -0.3 0" color="white" scale="0.8 0.8 0.8" align="center" background="true" background-color="black" background-padding="0.2"></a-text>
         </a-marker>
 
+        <!-- Закреплённая группа -->
+        <a-entity id="pinnedGroup" position="0 0 0" visible="false">
+            <a-entity id="pinnedModel" position="0 0.5 0"></a-entity>
+            <a-text id="pinnedText" value="" position="0 -0.3 0" color="white" scale="0.8 0.8 0.8" align="center" background="true" background-color="black" background-padding="0.2"></a-text>
+        </a-entity>
+
         <a-entity camera></a-entity>
     </a-scene>
 
     <script>
         // БАЗА ДАННЫХ БЛЮД
         const dishes = {
-            burger: {
-                name: "🍔 Чизбургер",
-                calories: "520",
-                protein: "28",
-                fat: "26",
-                carbs: "42",
-                ingredients: "Говяжья котлета 150г, сыр чеддер, салат айсберг, помидор, маринованные огурцы, соус BBQ, булка с кунжутом"
-            },
-            pizza: {
-                name: "🍕 Пицца Маргарита",
-                calories: "680",
-                protein: "24",
-                fat: "28",
-                carbs: "75",
-                ingredients: "Томатный соус, моцарелла, свежие томаты, базилик, оливковое масло, тесто на закваске"
-            },
-            sushi: {
-                name: "🍣 Роллы Филадельфия",
-                calories: "380",
-                protein: "18",
-                fat: "16",
-                carbs: "42",
-                ingredients: "Рис, норвежский лосось, сливочный сыр, огурец, авокадо, нори, кунжут"
-            },
-            salad: {
-                name: "🥗 Цезарь с курицей",
-                calories: "410",
-                protein: "32",
-                fat: "24",
-                carbs: "18",
-                ingredients: "Куриное филе, салат романо, пармезан, сухарики, соус Цезарь, перепелиное яйцо"
-            },
-            pasta: {
-                name: "🍝 Паста Карбонара",
-                calories: "720",
-                protein: "26",
-                fat: "34",
-                carbs: "72",
-                ingredients: "Спагетти, гуанчиале, яйцо, пекорино романо, чёрный перец, пармезан"
-            },
-            steak: {
-                name: "🥩 Стейк Рибай",
-                calories: "890",
-                protein: "52",
-                fat: "68",
-                carbs: "2",
-                ingredients: "Мраморная говядина (250г), розмарин, тимьян, чеснок, сливочное масло, трюфельный соус"
-            },
-            bowl: {
-                name: "🥣 Греческий йогурт с гранолой",
-                calories: "320",
-                protein: "15",
-                fat: "12",
-                carbs: "38",
-                ingredients: "Натуральный йогурт 5%, гранола, свежие ягоды, мёд, семена чиа"
-            },
-            coffee: {
-                name: "☕ Латте",
-                calories: "180",
-                protein: "8",
-                fat: "9",
-                carbs: "14",
-                ingredients: "Эспрессо, вспененное молоко 3.2%, сироп (по желанию), корица"
-            },
-            donut: {
-                name: "🍩 Пончик глазированный",
-                calories: "350",
-                protein: "5",
-                fat: "18",
-                carbs: "44",
-                ingredients: "Дрожжевое тесто, шоколадная глазурь, кондитерская посыпка"
-            },
-            icecream: {
-                name: "🍦 Пломбир ванильный",
-                calories: "220",
-                protein: "4",
-                fat: "14",
-                carbs: "20",
-                ingredients: "Натуральные сливки 33%, яичный желток, сахар, ванильный стручок"
-            }
+            burger: { name: "🍔 Чизбургер", calories: "520", protein: "28", fat: "26", carbs: "42", ingredients: "Говяжья котлета 150г, сыр чеддер, салат айсберг, помидор, маринованные огурцы, соус BBQ, булка с кунжутом" },
+            pizza: { name: "🍕 Пицца Маргарита", calories: "680", protein: "24", fat: "28", carbs: "75", ingredients: "Томатный соус, моцарелла, свежие томаты, базилик, оливковое масло, тесто на закваске" },
+            sushi: { name: "🍣 Роллы Филадельфия", calories: "380", protein: "18", fat: "16", carbs: "42", ingredients: "Рис, норвежский лосось, сливочный сыр, огурец, авокадо, нори, кунжут" },
+            salad: { name: "🥗 Цезарь с курицей", calories: "410", protein: "32", fat: "24", carbs: "18", ingredients: "Куриное филе, салат романо, пармезан, сухарики, соус Цезарь, перепелиное яйцо" },
+            pasta: { name: "🍝 Паста Карбонара", calories: "720", protein: "26", fat: "34", carbs: "72", ingredients: "Спагетти, гуанчиале, яйцо, пекорино романо, чёрный перец, пармезан" },
+            steak: { name: "🥩 Стейк Рибай", calories: "890", protein: "52", fat: "68", carbs: "2", ingredients: "Мраморная говядина (250г), розмарин, тимьян, чеснок, сливочное масло, трюфельный соус" },
+            bowl: { name: "🥣 Греческий йогурт с гранолой", calories: "320", protein: "15", fat: "12", carbs: "38", ingredients: "Натуральный йогурт 5%, гранола, свежие ягоды, мёд, семена чиа" },
+            coffee: { name: "☕ Латте", calories: "180", protein: "8", fat: "9", carbs: "14", ingredients: "Эспрессо, вспененное молоко 3.2%, сироп (по желанию), корица" },
+            donut: { name: "🍩 Пончик глазированный", calories: "350", protein: "5", fat: "18", carbs: "44", ingredients: "Дрожжевое тесто, шоколадная глазурь, кондитерская посыпка" },
+            icecream: { name: "🍦 Пломбир ванильный", calories: "220", protein: "4", fat: "14", carbs: "20", ingredients: "Натуральные сливки 33%, яичный желток, сахар, ванильный стручок" }
         };
 
-        // Элементы инфо-панели
+        // Элементы
         const infoCard = document.getElementById('infoCard');
         const dishNameEl = document.getElementById('dishName');
         const caloriesEl = document.getElementById('calories');
         const macroEl = document.getElementById('macro');
         const ingredientsEl = document.getElementById('ingredients');
+        const menuPanel = document.getElementById('menuPanel');
+        const toggleBtn = document.getElementById('toggleMenuBtn');
+        const pinBtn = document.getElementById('pinObjectBtn');
+        const hiroMarker = document.getElementById('hiroMarker');
+        const pinnedGroup = document.getElementById('pinnedGroup');
+        const dishText = document.getElementById('dishText');
+        const pinnedText = document.getElementById('pinnedText');
 
         // Модели
         const models = {
@@ -298,64 +346,182 @@
             icecream: document.getElementById('icecreamModel')
         };
 
-        const dishText = document.getElementById('dishText');
+        const pinnedModels = {};
+        for (let key in models) {
+            if (models[key]) {
+                const clone = models[key].cloneNode(true);
+                clone.setAttribute('visible', false);
+                document.getElementById('pinnedModel').appendChild(clone);
+                pinnedModels[key] = clone;
+            }
+        }
 
-        // Функция обновления UI и 3D
+        let currentDish = 'burger';
+        let isPinned = false;
+        let isDragging = false;
+        let lastTouchX = 0;
+        let lastTouchY = 0;
+
         function selectDish(dishId) {
+            currentDish = dishId;
             const dish = dishes[dishId];
             if (!dish) return;
 
-            // Обновляем инфо-панель
             dishNameEl.textContent = dish.name;
             caloriesEl.innerHTML = `${dish.calories} <span>ккал</span>`;
-            macroEl.innerHTML = `
-                <div>🥩 Б: ${dish.protein}г</div>
-                <div>🧈 Ж: ${dish.fat}г</div>
-                <div>🍚 У: ${dish.carbs}г</div>
-            `;
+            macroEl.innerHTML = `<div>🥩 Б: ${dish.protein}г</div><div>🧈 Ж: ${dish.fat}г</div><div>🍚 У: ${dish.carbs}г</div>`;
             ingredientsEl.textContent = `Состав: ${dish.ingredients}`;
             
-            // Обновляем текст над блюдом
             dishText.setAttribute('value', dish.name);
             
-            // Прячем все модели
             for (let key in models) {
-                if (models[key]) {
-                    models[key].setAttribute('visible', 'false');
+                if (models[key]) models[key].setAttribute('visible', 'false');
+            }
+            if (models[dishId]) models[dishId].setAttribute('visible', 'true');
+            
+            if (isPinned) {
+                for (let key in pinnedModels) {
+                    if (pinnedModels[key]) pinnedModels[key].setAttribute('visible', 'false');
                 }
+                if (pinnedModels[dishId]) pinnedModels[dishId].setAttribute('visible', 'true');
+                pinnedText.setAttribute('value', dish.name);
             }
             
-            // Показываем выбранную модель
-            if (models[dishId]) {
-                models[dishId].setAttribute('visible', 'true');
-            }
-            
-            // Анимация выбора (подсветка кнопки)
             document.querySelectorAll('.menu-btn').forEach(btn => {
                 btn.classList.remove('active');
-                if (btn.dataset.dish === dishId) {
-                    btn.classList.add('active');
-                }
+                if (btn.dataset.dish === dishId) btn.classList.add('active');
             });
         }
 
-        // Навешиваем обработчики на кнопки
+        // Перемещение пальцем — РАБОТАЕТ НА ВСЁМ ЭКРАНЕ (убрана проверка на UI)
+        function startDrag(e) {
+            isDragging = true;
+            const touch = e.touches[0];
+            lastTouchX = touch.clientX;
+            lastTouchY = touch.clientY;
+            e.preventDefault();
+        }
+
+        function onDrag(e) {
+            if (!isDragging) return;
+            const touch = e.touches[0];
+            const deltaX = (touch.clientX - lastTouchX) * 0.005;
+            const deltaY = (touch.clientY - lastTouchY) * 0.005;
+            
+            if (isPinned && pinnedGroup.getAttribute('visible') === 'true') {
+                let pos = pinnedGroup.getAttribute('position');
+                pinnedGroup.setAttribute('position', {
+                    x: pos.x + deltaX,
+                    y: pos.y - deltaY,
+                    z: pos.z
+                });
+            } else if (hiroMarker.getAttribute('visible') === 'true') {
+                let pos = hiroMarker.getAttribute('position');
+                hiroMarker.setAttribute('position', {
+                    x: pos.x + deltaX,
+                    y: pos.y - deltaY,
+                    z: pos.z
+                });
+            }
+            
+            lastTouchX = touch.clientX;
+            lastTouchY = touch.clientY;
+            e.preventDefault();
+        }
+
+        function endDrag(e) {
+            isDragging = false;
+        }
+
+        function pinObject() {
+            if (!isPinned) {
+                const markerPosition = hiroMarker.object3D.position;
+                const markerRotation = hiroMarker.object3D.rotation;
+                
+                pinnedGroup.object3D.position.copy(markerPosition);
+                pinnedGroup.object3D.rotation.copy(markerRotation);
+                
+                for (let key in pinnedModels) {
+                    pinnedModels[key].setAttribute('visible', 'false');
+                }
+                if (pinnedModels[currentDish]) {
+                    pinnedModels[currentDish].setAttribute('visible', 'true');
+                }
+                pinnedText.setAttribute('value', dishes[currentDish].name);
+                
+                pinnedGroup.setAttribute('visible', 'true');
+                hiroMarker.setAttribute('visible', 'false');
+                
+                isPinned = true;
+                pinBtn.textContent = '📍 Открепить';
+                pinBtn.classList.add('pinned');
+                document.getElementById('warningMsg').textContent = '✅ Объект закреплён! Води пальцем — перемещай!';
+                setTimeout(() => {
+                    document.getElementById('warningMsg').style.opacity = '0.5';
+                }, 3000);
+            } else {
+                pinnedGroup.setAttribute('visible', 'false');
+                hiroMarker.setAttribute('visible', 'true');
+                isPinned = false;
+                pinBtn.textContent = '📍 Закрепить';
+                pinBtn.classList.remove('pinned');
+                document.getElementById('warningMsg').textContent = '💡 Води пальцем по экрану (в любом месте), чтобы перемещать блюдо';
+                document.getElementById('warningMsg').style.opacity = '1';
+            }
+        }
+
+        let menuHidden = false;
+        toggleBtn.onclick = () => {
+            menuHidden = !menuHidden;
+            if (menuHidden) {
+                menuPanel.classList.add('hidden');
+                toggleBtn.innerHTML = '🙉 Показать меню';
+            } else {
+                menuPanel.classList.remove('hidden');
+                toggleBtn.innerHTML = '🙈 Скрыть меню';
+            }
+        };
+
         document.querySelectorAll('.menu-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
                 selectDish(btn.dataset.dish);
             });
         });
 
-        // Запускаем с бургером
+        pinBtn.onclick = pinObject;
+
         selectDish('burger');
         
-        // Небольшой эффект пульсации для информационной панели
+        // Автоматическое перемещение на весь экран
+        document.addEventListener('touchstart', startDrag, { passive: false });
+        document.addEventListener('touchmove', onDrag, { passive: false });
+        document.addEventListener('touchend', endDrag);
+        
         setInterval(() => {
-            infoCard.style.transform = 'scale(1)';
-            setTimeout(() => {
-                infoCard.style.transform = 'scale(1)';
-            }, 100);
-        }, 3000);
+            if (!isPinned && hiroMarker.object3D && pinnedGroup) {
+                const pos = hiroMarker.object3D.position;
+                const rot = hiroMarker.object3D.rotation;
+                if (pos && (pos.x !== 0 || pos.y !== 0 || pos.z !== 0)) {
+                    pinnedGroup.object3D.position.copy(pos);
+                    pinnedGroup.object3D.rotation.copy(rot);
+                }
+            }
+        }, 100);
+
+        // Принудительный запуск камеры
+        window.onload = function() {
+            setTimeout(function() {
+                const scene = document.querySelector('a-scene');
+                if (scene && scene.components && scene.components.arjs) {
+                    try {
+                        scene.components.arjs.start();
+                    } catch(e) {
+                        console.log("AR start error:", e);
+                    }
+                }
+            }, 500);
+        };
     </script>
 </body>
 </html>
