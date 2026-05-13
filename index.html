@@ -38,11 +38,11 @@
             color: black;
         }
 
-        /* Кнопка закрепления объекта (чтобы убрать маркер) */
+        /* Кнопка закрепления объекта */
         .pin-object-btn {
             position: fixed;
             top: 20px;
-            right: 140px;
+            left: 20px;
             z-index: 200;
             background: rgba(0,0,0,0.8);
             backdrop-filter: blur(10px);
@@ -68,7 +68,7 @@
             color: black;
         }
 
-        /* Панель выбора блюд (скрывается) */
+        /* Панель выбора блюд */
         .menu-panel {
             position: fixed;
             bottom: 20px;
@@ -122,7 +122,7 @@
         /* Инфо-панель с БЖУ */
         .info-card {
             position: fixed;
-            top: 20px;
+            top: 70px;
             left: 20px;
             z-index: 100;
             background: rgba(0,0,0,0.85);
@@ -209,7 +209,7 @@
     <!-- Кнопка скрытия/показа меню -->
     <button class="toggle-menu-btn" id="toggleMenuBtn">🙈 Скрыть меню</button>
 
-    <!-- Кнопка закрепления объекта (после нажатия можно убрать маркер) -->
+    <!-- Кнопка закрепления объекта -->
     <button class="pin-object-btn" id="pinObjectBtn">📍 Закрепить</button>
 
     <!-- Инфо-панель -->
@@ -241,15 +241,15 @@
     </div>
 
     <div class="badge">AR Menu • Наведи на маркер Hiro</div>
-    <div class="warning" id="warningMsg">💡 Наведи на маркер → Нажми "Закрепить" → Можешь убрать маркер</div>
+    <div class="warning" id="warningMsg">💡 Води пальцем по экрану, чтобы перемещать блюдо</div>
 
     <!-- AR СЦЕНА -->
     <a-scene id="arScene" embedded arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono;">
         
-        <!-- Маркер (видимый только пока не закрепили) -->
+        <!-- Маркер -->
         <a-marker id="hiroMarker" preset="hiro">
             
-            <!-- Вся 3D-графика внутри маркера -->
+            <!-- 3D-графика внутри маркера -->
             <a-entity id="dishModel" position="0 0.5 0">
                 <!-- Бургер -->
                 <a-group id="burgerGroup">
@@ -275,7 +275,7 @@
             <a-text id="dishText" value="🍔 Бургер" position="0 -0.3 0" color="white" scale="0.8 0.8 0.8" align="center" background="true" background-color="black" background-padding="0.2"></a-text>
         </a-marker>
 
-        <!-- Дублирующая группа для закреплённого объекта (появляется при нажатии "Закрепить") -->
+        <!-- Закреплённая группа -->
         <a-entity id="pinnedGroup" position="0 0 0" visible="false">
             <a-entity id="pinnedModel" position="0 0.5 0"></a-entity>
             <a-text id="pinnedText" value="" position="0 -0.3 0" color="white" scale="0.8 0.8 0.8" align="center" background="true" background-color="black" background-padding="0.2"></a-text>
@@ -328,7 +328,6 @@
         };
 
         const pinnedModels = {};
-        // Создаём копии моделей для закреплённой группы
         for (let key in models) {
             if (models[key]) {
                 const clone = models[key].cloneNode(true);
@@ -340,8 +339,10 @@
 
         let currentDish = 'burger';
         let isPinned = false;
+        let isDragging = false;
+        let lastTouchX = 0;
+        let lastTouchY = 0;
 
-        // Функция обновления UI и 3D
         function selectDish(dishId) {
             currentDish = dishId;
             const dish = dishes[dishId];
@@ -354,13 +355,11 @@
             
             dishText.setAttribute('value', dish.name);
             
-            // Прячем все модели в маркере
             for (let key in models) {
                 if (models[key]) models[key].setAttribute('visible', 'false');
             }
             if (models[dishId]) models[dishId].setAttribute('visible', 'true');
             
-            // Если закреплено — обновляем и закреплённую группу
             if (isPinned) {
                 for (let key in pinnedModels) {
                     if (pinnedModels[key]) pinnedModels[key].setAttribute('visible', 'false');
@@ -375,18 +374,55 @@
             });
         }
 
-        // Закрепление объекта (сохраняем позицию маркера и отключаем сам маркер)
+        // Перемещение пальцем (автоматически, без кнопок)
+        function startDrag(e) {
+            isDragging = true;
+            const touch = e.touches[0];
+            lastTouchX = touch.clientX;
+            lastTouchY = touch.clientY;
+            e.preventDefault();
+        }
+
+        function onDrag(e) {
+            if (!isDragging) return;
+            const touch = e.touches[0];
+            const deltaX = (touch.clientX - lastTouchX) * 0.005;
+            const deltaY = (touch.clientY - lastTouchY) * 0.005;
+            
+            if (isPinned && pinnedGroup.getAttribute('visible') === 'true') {
+                let pos = pinnedGroup.getAttribute('position');
+                pinnedGroup.setAttribute('position', {
+                    x: pos.x + deltaX,
+                    y: pos.y - deltaY,
+                    z: pos.z
+                });
+            } else if (hiroMarker.getAttribute('visible') === 'true') {
+                let pos = hiroMarker.getAttribute('position');
+                hiroMarker.setAttribute('position', {
+                    x: pos.x + deltaX,
+                    y: pos.y - deltaY,
+                    z: pos.z
+                });
+            }
+            
+            lastTouchX = touch.clientX;
+            lastTouchY = touch.clientY;
+            e.preventDefault();
+        }
+
+        function endDrag(e) {
+            isDragging = false;
+            e.preventDefault();
+        }
+
         function pinObject() {
             if (!isPinned) {
-                // Получаем текущую позицию маркера в реальном мире
                 const markerPosition = hiroMarker.object3D.position;
                 const markerRotation = hiroMarker.object3D.rotation;
                 
-                // Копируем позицию в закреплённую группу
                 pinnedGroup.object3D.position.copy(markerPosition);
                 pinnedGroup.object3D.rotation.copy(markerRotation);
                 
-                // Копируем текущее блюдо в закреплённую группу
                 for (let key in pinnedModels) {
                     pinnedModels[key].setAttribute('visible', 'false');
                 }
@@ -395,32 +431,27 @@
                 }
                 pinnedText.setAttribute('value', dishes[currentDish].name);
                 
-                // Показываем закреплённую группу
                 pinnedGroup.setAttribute('visible', 'true');
-                
-                // Делаем маркер невидимым (но он продолжает работать в фоне)
                 hiroMarker.setAttribute('visible', 'false');
                 
                 isPinned = true;
                 pinBtn.textContent = '📍 Открепить';
                 pinBtn.classList.add('pinned');
-                document.getElementById('warningMsg').textContent = '✅ Объект закреплён! Теперь можно убрать маркер из кадра.';
+                document.getElementById('warningMsg').textContent = '✅ Объект закреплён! Теперь можно убрать маркер. Води пальцем — перемещай!';
                 setTimeout(() => {
                     document.getElementById('warningMsg').style.opacity = '0.5';
                 }, 3000);
             } else {
-                // Открепление
                 pinnedGroup.setAttribute('visible', 'false');
                 hiroMarker.setAttribute('visible', 'true');
                 isPinned = false;
                 pinBtn.textContent = '📍 Закрепить';
                 pinBtn.classList.remove('pinned');
-                document.getElementById('warningMsg').textContent = '📍 Нажми "Закрепить" после наведения на маркер, чтобы можно было его убрать.';
+                document.getElementById('warningMsg').textContent = '💡 Води пальцем по экрану, чтобы перемещать блюдо';
                 document.getElementById('warningMsg').style.opacity = '1';
             }
         }
 
-        // Скрытие/показ меню
         let menuHidden = false;
         toggleBtn.onclick = () => {
             menuHidden = !menuHidden;
@@ -433,18 +464,19 @@
             }
         };
 
-        // Навешиваем обработчики на кнопки меню
         document.querySelectorAll('.menu-btn').forEach(btn => {
             btn.addEventListener('click', () => selectDish(btn.dataset.dish));
         });
 
-        // Кнопка закрепления
         pinBtn.onclick = pinObject;
 
-        // Запускаем с бургером
         selectDish('burger');
         
-        // При каждой перерисовке маркера обновляем позицию для закрепления (если ещё не закреплено)
+        // Автоматическое перемещение без кнопок
+        document.addEventListener('touchstart', startDrag, { passive: false });
+        document.addEventListener('touchmove', onDrag, { passive: false });
+        document.addEventListener('touchend', endDrag);
+        
         setInterval(() => {
             if (!isPinned && hiroMarker.object3D && pinnedGroup) {
                 const pos = hiroMarker.object3D.position;
