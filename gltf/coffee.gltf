@@ -1,0 +1,485 @@
+{
+    "asset": {
+        "version": "2.0",
+        "generator": "Open Asset Import Library (assimp v5.0.5eb040c7)"
+    },
+    "accessors": [
+        {
+            "bufferView": 0,
+            "byteOffset": 0,
+            "componentType": 5126,
+            "count": 674,
+            "type": "VEC3",
+            "max": [
+                0.6056448817253113,
+                0.1536186784505844,
+                0.6056448817253113
+            ],
+            "min": [
+                -0.5724515914916992,
+                0.0454573817551136,
+                -0.5724515914916992
+            ]
+        },
+        {
+            "bufferView": 1,
+            "byteOffset": 0,
+            "componentType": 5125,
+            "count": 4032,
+            "type": "SCALAR",
+            "max": [
+                673
+            ],
+            "min": [
+                0
+            ]
+        },
+        {
+            "bufferView": 2,
+            "byteOffset": 0,
+            "componentType": 5126,
+            "count": 968,
+            "type": "VEC3",
+            "max": [
+                0.6902447938919067,
+                0.6148150563240051,
+                0.4609375
+            ],
+            "min": [
+                -0.4609375,
+                0.053363263607025149,
+                -0.4609375
+            ]
+        },
+        {
+            "bufferView": 3,
+            "byteOffset": 0,
+            "componentType": 5126,
+            "count": 968,
+            "type": "VEC3",
+            "max": [
+                0.9998879432678223,
+                1.0,
+                0.9996868968009949
+            ],
+            "min": [
+                -0.999998927116394,
+                -1.0,
+                -0.9996868968009949
+            ]
+        },
+        {
+            "bufferView": 4,
+            "byteOffset": 0,
+            "componentType": 5125,
+            "count": 5568,
+            "type": "SCALAR",
+            "max": [
+                967
+            ],
+            "min": [
+                0
+            ]
+        }
+    ],
+    "buffers": [
+        {
+            "byteLength": 69720,
+            "uri": "result.bin"
+        }
+    ],
+    "bufferViews": [
+        {
+            "buffer": 0,
+            "byteOffset": 0,
+            "byteLength": 8088,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 8088,
+            "byteLength": 16128,
+            "target": 34963
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 24216,
+            "byteLength": 11616,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 35832,
+            "byteLength": 11616,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 47448,
+            "byteLength": 22272,
+            "target": 34963
+        }
+    ],
+    "materials": [
+        {
+            "name": "coffee",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.4000000059604645,
+                    0.4000000059604645,
+                    0.4000000059604645,
+                    1.0
+                ],
+                "metallicFactor": 0.0
+            }
+        }
+    ],
+    "meshes": [
+        {
+            "name": "Plate",
+            "primitives": [
+                {
+                    "mode": 4,
+                    "material": 0,
+                    "indices": 1,
+                    "attributes": {
+                        "POSITION": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Coffee",
+            "primitives": [
+                {
+                    "mode": 4,
+                    "material": 0,
+                    "indices": 4,
+                    "attributes": {
+                        "POSITION": 2,
+                        "NORMAL": 3
+                    }
+                }
+            ]
+        }
+    ],
+    "nodes": [
+        {
+            "name": "RootNode",
+            "children": [
+                1
+            ]
+        },
+        {
+            "name": "Coffee_$AssimpFbx$_RotationPivot",
+            "matrix": [
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0682675838470459,
+                0.0,
+                1.0
+            ],
+            "children": [
+                2
+            ]
+        },
+        {
+            "name": "Coffee_$AssimpFbx$_RotationPivotInverse",
+            "matrix": [
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                -0.0,
+                -0.0682675838470459,
+                -0.0,
+                1.0
+            ],
+            "children": [
+                3
+            ]
+        },
+        {
+            "name": "Coffee_$AssimpFbx$_ScalingPivot",
+            "matrix": [
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0682675838470459,
+                0.0,
+                1.0
+            ],
+            "children": [
+                4
+            ]
+        },
+        {
+            "name": "Coffee_$AssimpFbx$_ScalingPivotInverse",
+            "matrix": [
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                -0.0,
+                -0.0682675838470459,
+                -0.0,
+                1.0
+            ],
+            "children": [
+                5
+            ]
+        },
+        {
+            "name": "Coffee",
+            "children": [
+                6,
+                11
+            ]
+        },
+        {
+            "name": "Plate_$AssimpFbx$_RotationPivot",
+            "matrix": [
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.01659664511680603,
+                0.09953802824020386,
+                0.01659664511680603,
+                1.0
+            ],
+            "children": [
+                7
+            ]
+        },
+        {
+            "name": "Plate_$AssimpFbx$_RotationPivotInverse",
+            "matrix": [
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                -0.01659664511680603,
+                -0.09953802824020386,
+                -0.01659664511680603,
+                1.0
+            ],
+            "children": [
+                8
+            ]
+        },
+        {
+            "name": "Plate_$AssimpFbx$_ScalingPivot",
+            "matrix": [
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.01659664511680603,
+                0.09953802824020386,
+                0.01659664511680603,
+                1.0
+            ],
+            "children": [
+                9
+            ]
+        },
+        {
+            "name": "Plate_$AssimpFbx$_ScalingPivotInverse",
+            "matrix": [
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                -0.01659664511680603,
+                -0.09953802824020386,
+                -0.01659664511680603,
+                1.0
+            ],
+            "children": [
+                10
+            ]
+        },
+        {
+            "name": "Plate",
+            "mesh": 0
+        },
+        {
+            "name": "Coffee_$AssimpFbx$_RotationPivot_node",
+            "matrix": [
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                4.423782229423523e-9,
+                0.07270848751068115,
+                5.3551048040390018e-9,
+                1.0
+            ],
+            "children": [
+                12
+            ]
+        },
+        {
+            "name": "Coffee_$AssimpFbx$_RotationPivotInverse_node",
+            "matrix": [
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                -4.423782229423523e-9,
+                -0.07270848751068115,
+                -5.3551048040390018e-9,
+                1.0
+            ],
+            "children": [
+                13
+            ]
+        },
+        {
+            "name": "Coffee_$AssimpFbx$_ScalingPivot_node",
+            "matrix": [
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                4.423782229423523e-9,
+                0.07270848751068115,
+                5.3551048040390018e-9,
+                1.0
+            ],
+            "children": [
+                14
+            ]
+        },
+        {
+            "name": "Coffee_$AssimpFbx$_ScalingPivotInverse_node",
+            "matrix": [
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                -4.423782229423523e-9,
+                -0.07270848751068115,
+                -5.3551048040390018e-9,
+                1.0
+            ],
+            "children": [
+                15
+            ]
+        },
+        {
+            "name": "Coffee_node",
+            "mesh": 1
+        }
+    ],
+    "scenes": [
+        {
+            "nodes": [
+                0
+            ]
+        }
+    ],
+    "scene": 0
+}
