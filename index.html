@@ -98,16 +98,14 @@
         .ingredients-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.7px; color: rgba(255,255,255,0.3); margin-bottom: 4px; }
         .ingredients-text { font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.5; font-weight: 300; }
 
-        /* === ЗАЙЧИК-ДИАЛОГ === */
+        /* === ЗАЙЧИК === */
         .bunny-dialog {
-            position: fixed; bottom: 195px; left: 10px; right: 10px; z-index: 310;
+            position: fixed; bottom: 240px; left: 10px; right: 10px; z-index: 310;
             display: flex; align-items: flex-end; gap: 10px;
             transition: all 0.5s cubic-bezier(0.16,1,0.3,1);
             pointer-events: none;
         }
-        .bunny-dialog.hidden {
-            transform: translateY(30px); opacity: 0;
-        }
+        .bunny-dialog.hidden { transform: translateY(30px); opacity: 0; }
         .bunny-avatar {
             width: 56px; height: 56px; flex-shrink: 0;
             background: linear-gradient(135deg, #a8e6cf, #88d8a8);
@@ -134,38 +132,21 @@
             font-size: 14px; line-height: 1.45; font-weight: 400;
             margin-bottom: 10px;
         }
-        .bunny-text .highlight {
-            color: #F7C948; font-weight: 600;
-        }
-        .bunny-actions {
-            display: flex; gap: 8px; flex-wrap: wrap;
-        }
+        .bunny-text .highlight { color: #F7C948; font-weight: 600; }
+        .bunny-actions { display: flex; gap: 8px; flex-wrap: wrap; }
         .bunny-btn {
             border: none; border-radius: 20px; padding: 7px 14px;
             font-size: 12px; font-weight: 600; cursor: pointer;
             transition: all 0.2s; font-family: inherit;
         }
         .bunny-btn:active { transform: scale(0.95); }
-        .bunny-btn.primary {
-            background: linear-gradient(135deg, #FF6B35, #F7C948);
-            color: #000;
-        }
-        .bunny-btn.secondary {
-            background: rgba(255,255,255,0.1); color: white;
-            border: 1px solid rgba(255,255,255,0.12);
-        }
-        .bunny-btn.success {
-            background: linear-gradient(135deg, #4ECDC4, #44B09E);
-            color: #000;
-        }
-        .bunny-btn.pink {
-            background: linear-gradient(135deg, #FF6B9D, #C44569);
-            color: white;
-        }
+        .bunny-btn.primary { background: linear-gradient(135deg, #FF6B35, #F7C948); color: #000; }
+        .bunny-btn.secondary { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.12); }
+        .bunny-btn.success { background: linear-gradient(135deg, #4ECDC4, #44B09E); color: #000; }
+        .bunny-btn.pink { background: linear-gradient(135deg, #FF6B9D, #C44569); color: white; }
 
-        /* Реакция зайчика */
         .bunny-reaction {
-            position: fixed; bottom: 260px; left: 50%;
+            position: fixed; bottom: 300px; left: 50%;
             transform: translateX(-50%); z-index: 320;
             font-size: 48px; pointer-events: none;
             animation: reactionPop 1.2s ease-out forwards;
@@ -177,7 +158,6 @@
             100% { opacity: 0; transform: translateX(-50%) translateY(-60px) scale(0.8); }
         }
 
-        /* Счётчик дружбы */
         .friendship-bar {
             position: fixed; top: calc(max(10px, env(safe-area-inset-top)) + 2px);
             left: 50%; transform: translateX(-50%); z-index: 300;
@@ -187,6 +167,33 @@
             font-size: 11px; color: rgba(255,255,255,0.6);
         }
         .hearts { color: #FF6B9D; font-size: 10px; letter-spacing: 2px; }
+
+        /* === КОНТРОЛЫ МОДЕЛИ === */
+        .model-controls {
+            position: fixed; bottom: 130px; left: 10px; z-index: 290;
+            display: flex; flex-direction: column; gap: 6px;
+            background: rgba(12,12,22,0.85); backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px); border-radius: 14px;
+            padding: 8px; border: 1px solid rgba(255,255,255,0.08);
+            transition: all 0.3s ease;
+        }
+        .model-controls.hidden {
+            opacity: 0; pointer-events: none; transform: translateX(-20px);
+        }
+        .ctrl-btn {
+            width: 40px; height: 40px; border-radius: 10px; border: none;
+            background: rgba(255,255,255,0.1); color: white;
+            font-size: 18px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.15s;
+        }
+        .ctrl-btn:active { transform: scale(0.88); background: rgba(255,107,53,0.4); }
+        .ctrl-label {
+            font-size: 9px; color: rgba(255,255,255,0.4);
+            text-align: center; text-transform: uppercase; letter-spacing: 0.5px;
+            margin: 2px 0;
+        }
+        .ctrl-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 2px 0; }
 
         /* === НИЖНЕЕ МЕНЮ === */
         .bottom-sheet {
@@ -224,7 +231,14 @@
         .dish-card.active .card-name { color: white; }
         .dish-card.active .card-cal { color: rgba(255,180,100,0.6); }
 
-        /* Конфетти */
+        .has-3d-badge {
+            position: absolute; top: 2px; right: 2px;
+            background: linear-gradient(135deg, #4ECDC4, #44B09E);
+            color: #000; font-size: 7px; font-weight: 800;
+            padding: 1px 4px; border-radius: 6px;
+        }
+        .dish-card { position: relative; }
+
         .confetti {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: 9999; pointer-events: none; overflow: hidden;
@@ -239,22 +253,21 @@
             100% { opacity: 0; transform: translateY(100vh) rotate(720deg) scale(0.5); }
         }
 
-        /* Зайчик спит */
-        .zzz {
-            position: fixed; bottom: 235px; left: 28px; z-index: 320;
-            font-size: 16px; color: rgba(255,255,255,0.4);
-            pointer-events: none;
-            animation: zzzFloat 2s ease-in-out infinite;
+        /* Индикатор размера/поворота */
+        .gesture-hint {
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); z-index: 350;
+            background: rgba(0,0,0,0.8); color: white;
+            padding: 12px 22px; border-radius: 30px;
+            font-size: 14px; font-weight: 600;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s;
         }
-        @keyframes zzzFloat {
-            0%,100% { opacity: 0.3; transform: translateY(0); }
-            50% { opacity: 0.7; transform: translateY(-8px); }
-        }
+        .gesture-hint.show { opacity: 1; }
     </style>
 </head>
 <body>
 
-    <!-- Верхняя панель -->
     <div class="top-bar">
         <div class="logo">
             <div class="logo-icon">🍽</div>
@@ -267,14 +280,12 @@
         </div>
     </div>
 
-    <!-- Дружба -->
     <div class="friendship-bar" id="friendshipBar">
         <span>🐰</span>
         <span id="friendshipLabel">Новый друг</span>
-        <span class="hearts" id="heartsDisplay">♥♡♡♡♡</span>
+        <span class="hearts" id="heartsDisplay">♡♡♡♡♡</span>
     </div>
 
-    <!-- Инфо -->
     <div class="info-card collapsed" id="infoCard">
         <div class="dish-header">
             <div class="dish-name" id="dishName">Чизбургер</div>
@@ -304,7 +315,21 @@
         </div>
     </div>
 
-    <!-- Зайчик -->
+    <!-- КОНТРОЛЫ МОДЕЛИ -->
+    <div class="model-controls" id="modelControls">
+        <button class="ctrl-btn" id="scaleUpBtn" title="Увеличить">➕</button>
+        <div class="ctrl-label">размер</div>
+        <button class="ctrl-btn" id="scaleDownBtn" title="Уменьшить">➖</button>
+        <div class="ctrl-divider"></div>
+        <button class="ctrl-btn" id="rotateLeftBtn" title="Влево">↺</button>
+        <div class="ctrl-label">поворот</div>
+        <button class="ctrl-btn" id="rotateRightBtn" title="Вправо">↻</button>
+        <div class="ctrl-divider"></div>
+        <button class="ctrl-btn" id="resetBtn" title="Сброс" style="font-size:14px;">🔄</button>
+    </div>
+
+    <div class="gesture-hint" id="gestureHint">👌 Щипок — масштаб</div>
+
     <div class="bunny-dialog" id="bunnyDialog">
         <div class="bunny-avatar" id="bunnyAvatar">🐰</div>
         <div class="bunny-bubble">
@@ -319,18 +344,17 @@
         </div>
     </div>
 
-    <!-- Меню -->
     <div class="bottom-sheet" id="bottomSheet">
         <div class="sheet-handle"></div>
         <div class="menu-scroll" id="menuScroll">
-            <div class="dish-card active" data-dish="burger"><span class="card-emoji">🍔</span><div class="card-name">Бургер</div><div class="card-cal">520 ккал</div></div>
-            <div class="dish-card" data-dish="pizza"><span class="card-emoji">🍕</span><div class="card-name">Пицца</div><div class="card-cal">680 ккал</div></div>
-            <div class="dish-card" data-dish="sushi"><span class="card-emoji">🍣</span><div class="card-name">Роллы</div><div class="card-cal">380 ккал</div></div>
-            <div class="dish-card" data-dish="salad"><span class="card-emoji">🥗</span><div class="card-name">Цезарь</div><div class="card-cal">410 ккал</div></div>
+            <div class="dish-card active" data-dish="burger"><span class="has-3d-badge">3D</span><span class="card-emoji">🍔</span><div class="card-name">Бургер</div><div class="card-cal">520 ккал</div></div>
+            <div class="dish-card" data-dish="pizza"><span class="has-3d-badge">3D</span><span class="card-emoji">🍕</span><div class="card-name">Пицца</div><div class="card-cal">680 ккал</div></div>
+            <div class="dish-card" data-dish="sushi"><span class="has-3d-badge">3D</span><span class="card-emoji">🍣</span><div class="card-name">Роллы</div><div class="card-cal">380 ккал</div></div>
+            <div class="dish-card" data-dish="salad"><span class="has-3d-badge">3D</span><span class="card-emoji">🥗</span><div class="card-name">Цезарь</div><div class="card-cal">410 ккал</div></div>
             <div class="dish-card" data-dish="pasta"><span class="card-emoji">🍝</span><div class="card-name">Карбонара</div><div class="card-cal">720 ккал</div></div>
-            <div class="dish-card" data-dish="steak"><span class="card-emoji">🥩</span><div class="card-name">Стейк</div><div class="card-cal">890 ккал</div></div>
+            <div class="dish-card" data-dish="steak"><span class="has-3d-badge">3D</span><span class="card-emoji">🥩</span><div class="card-name">Стейк</div><div class="card-cal">890 ккал</div></div>
             <div class="dish-card" data-dish="bowl"><span class="card-emoji">🥣</span><div class="card-name">Йогурт</div><div class="card-cal">320 ккал</div></div>
-            <div class="dish-card" data-dish="coffee"><span class="card-emoji">☕</span><div class="card-name">Латте</div><div class="card-cal">180 ккал</div></div>
+            <div class="dish-card" data-dish="coffee"><span class="has-3d-badge">3D</span><span class="card-emoji">☕</span><div class="card-name">Латте</div><div class="card-cal">180 ккал</div></div>
             <div class="dish-card" data-dish="donut"><span class="card-emoji">🍩</span><div class="card-name">Пончик</div><div class="card-cal">350 ккал</div></div>
             <div class="dish-card" data-dish="icecream"><span class="card-emoji">🍦</span><div class="card-name">Пломбир</div><div class="card-cal">220 ккал</div></div>
         </div>
@@ -340,62 +364,49 @@
     <a-scene id="arScene" embedded
              arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
              vr-mode-ui="enabled: false"
-             renderer="logarithmicDepthBuffer: true; precision: medium;"
+             renderer="logarithmicDepthBuffer: true; precision: medium; alpha: true; antialias: true;"
              loading-screen="enabled: false">
 
+        <!-- СВЕТ для GLB моделей -->
+        <a-entity light="type: ambient; intensity: 1.0; color: #ffffff"></a-entity>
+        <a-entity light="type: directional; intensity: 0.8; color: #ffffff" position="1 2 1"></a-entity>
+        <a-entity light="type: directional; intensity: 0.4; color: #ffeecc" position="-1 1 -1"></a-entity>
+
         <a-marker id="hiroMarker" preset="hiro" smooth="true" smooth-count="5">
-            <a-entity id="dishModel" position="0 0 0">
+            <!-- Контейнер для модели — управляется JS-ом -->
+            <a-entity id="dishModel" position="0 0 0" rotation="0 0 0" scale="1 1 1">
 
-                <a-entity
-    id="burgerGroup"
-    visible="true"
-    gltf-model="url(./burger.glb)"
-    position="0 0.15 0"
-    rotation="0 180 0"
-    scale="0.25 0.25 0.25">
-</a-entity>
+                <!-- GLB МОДЕЛИ -->
+                <a-entity id="burgerGroup" visible="true"
+                    gltf-model="url(./burger.glb)"
+                    position="0 0 0" rotation="-90 0 0" scale="0.15 0.15 0.15"></a-entity>
 
-                <a-entity id="pizzaGroup" visible="false" position="0 0.12 0" scale="0.7 0.7 0.7">
-                    <a-cylinder color="#E8B960" radius="0.55" height="0.06" position="0 0 0"></a-cylinder>
-                    <a-cylinder color="#CC3300" radius="0.5" height="0.02" position="0 0.04 0"></a-cylinder>
-                    <a-sphere color="#FFFDD0" radius="0.08" position="0.15 0.06 0.1"></a-sphere>
-                    <a-sphere color="#FFFDD0" radius="0.07" position="-0.2 0.06 0.05"></a-sphere>
-                    <a-sphere color="#FFFDD0" radius="0.09" position="0.05 0.06 -0.18"></a-sphere>
-                    <a-cylinder color="#228B22" radius="0.02" height="0.02" position="0.22 0.07 -0.1"></a-cylinder>
-                </a-entity>
+                <a-entity id="pizzaGroup" visible="false"
+                    gltf-model="url(./pizza.glb)"
+                    position="0 0 0" rotation="-90 0 0" scale="0.15 0.15 0.15"></a-entity>
 
-                <a-entity id="sushiGroup" visible="false" position="0 0.08 0" scale="0.7 0.7 0.7">
-                    <a-box color="#8B7355" width="0.7" height="0.03" depth="0.5" position="0 0 0"></a-box>
-                    <a-cylinder color="#1a1a1a" radius="0.12" height="0.1" position="-0.18 0.07 -0.1"></a-cylinder>
-                    <a-cylinder color="#FFF" radius="0.1" height="0.005" position="-0.18 0.125 -0.1"></a-cylinder>
-                    <a-cylinder color="#FF6347" radius="0.06" height="0.005" position="-0.18 0.13 -0.1"></a-cylinder>
-                    <a-cylinder color="#1a1a1a" radius="0.12" height="0.1" position="0.15 0.07 -0.1"></a-cylinder>
-                    <a-cylinder color="#FFF" radius="0.1" height="0.005" position="0.15 0.125 -0.1"></a-cylinder>
-                    <a-cylinder color="#FF6347" radius="0.06" height="0.005" position="0.15 0.13 -0.1"></a-cylinder>
-                    <a-cylinder color="#1a1a1a" radius="0.12" height="0.1" position="0 0.07 0.12"></a-cylinder>
-                    <a-cylinder color="#FFF" radius="0.1" height="0.005" position="0 0.125 0.12"></a-cylinder>
-                    <a-cylinder color="#32CD32" radius="0.05" height="0.005" position="0 0.13 0.12"></a-cylinder>
-                </a-entity>
+                <a-entity id="sushiGroup" visible="false"
+                    gltf-model="url(./sushi.glb)"
+                    position="0 0 0" rotation="-90 0 0" scale="0.15 0.15 0.15"></a-entity>
 
-                <a-entity id="saladGroup" visible="false" position="0 0.12 0" scale="0.7 0.7 0.7">
-                    <a-cylinder color="#E8E8E8" radius="0.45" height="0.1" position="0 0 0"></a-cylinder>
-                    <a-sphere color="#228B22" radius="0.12" position="0.1 0.1 0.1" scale="1.2 0.6 1"></a-sphere>
-                    <a-sphere color="#32CD32" radius="0.1" position="-0.15 0.09 0.05" scale="1.3 0.5 1"></a-sphere>
-                    <a-sphere color="#2E8B57" radius="0.11" position="0.05 0.11 -0.15" scale="1 0.5 1.2"></a-sphere>
-                    <a-box color="#F4A460" width="0.3" height="0.05" depth="0.08" position="0 0.16 0" rotation="10 30 5"></a-box>
-                </a-entity>
+                <a-entity id="saladGroup" visible="false"
+                    gltf-model="url(./caesar.glb)"
+                    position="0 0 0" rotation="-90 0 0" scale="0.15 0.15 0.15"></a-entity>
 
+                <a-entity id="steakGroup" visible="false"
+                    gltf-model="url(./steak.glb)"
+                    position="0 0 0" rotation="-90 0 0" scale="0.15 0.15 0.15"></a-entity>
+
+                <a-entity id="coffeeGroup" visible="false"
+                    gltf-model="url(./latte.glb)"
+                    position="0 0 0" rotation="-90 0 0" scale="0.15 0.15 0.15"></a-entity>
+
+                <!-- Примитивы для тех, у кого нет GLB -->
                 <a-entity id="pastaGroup" visible="false" position="0 0.12 0" scale="0.7 0.7 0.7">
                     <a-cylinder color="#E8E8E8" radius="0.4" height="0.12" position="0 0 0"></a-cylinder>
                     <a-torus color="#F5DEB3" radius="0.25" radius-tubular="0.035" position="0 0.1 0" rotation="5 0 10"></a-torus>
                     <a-torus color="#F5DEB3" radius="0.22" radius-tubular="0.03" position="0 0.13 0" rotation="-8 45 5"></a-torus>
                     <a-sphere color="#CC3300" radius="0.1" position="0 0.16 0" scale="1.5 0.4 1.5"></a-sphere>
-                </a-entity>
-
-                <a-entity id="steakGroup" visible="false" position="0 0.08 0" scale="0.7 0.7 0.7">
-                    <a-cylinder color="#F0F0F0" radius="0.5" height="0.03" position="0 0 0"></a-cylinder>
-                    <a-box color="#5C2018" width="0.45" height="0.08" depth="0.35" position="0 0.06 0"></a-box>
-                    <a-sphere color="#228B22" radius="0.05" position="0.28 0.06 0.1" scale="1 0.5 1"></a-sphere>
                 </a-entity>
 
                 <a-entity id="bowlGroup" visible="false" position="0 0.12 0" scale="0.7 0.7 0.7">
@@ -404,14 +415,6 @@
                     <a-sphere color="#E74C3C" radius="0.025" position="0.1 0.12 0.05"></a-sphere>
                     <a-sphere color="#8E44AD" radius="0.02" position="-0.08 0.12 0.08"></a-sphere>
                     <a-box color="#D4A460" width="0.25" height="0.015" depth="0.06" position="0 0.11 0"></a-box>
-                </a-entity>
-
-                <a-entity id="coffeeGroup" visible="false" position="0 0.12 0" scale="0.7 0.7 0.7">
-                    <a-cylinder color="#FFF" radius="0.28" height="0.02" position="0 0 0"></a-cylinder>
-                    <a-cylinder color="#FFF" radius="0.16" height="0.25" position="0 0.14 0"></a-cylinder>
-                    <a-cylinder color="#4A2C0A" radius="0.14" height="0.02" position="0 0.26 0"></a-cylinder>
-                    <a-sphere color="#F5F0E8" radius="0.13" position="0 0.27 0" scale="1 0.3 1"></a-sphere>
-                    <a-torus color="#FFF" radius="0.07" radius-tubular="0.012" position="0.2 0.16 0" rotation="0 0 90" theta-length="180"></a-torus>
                 </a-entity>
 
                 <a-entity id="donutGroup" visible="false" position="0 0.12 0" scale="0.7 0.7 0.7">
@@ -429,7 +432,6 @@
                     <a-sphere color="#8B4513" radius="0.1" position="-0.06 0.45 0.04"></a-sphere>
                     <a-sphere color="#CC0000" radius="0.035" position="0 0.54 0"></a-sphere>
                 </a-entity>
-
             </a-entity>
 
             <a-entity position="0 -0.15 0" rotation="-90 0 0">
@@ -444,111 +446,59 @@
     <script>
         // ===== ДАННЫЕ =====
         const dishes = {
-            burger: { name:"Чизбургер", emoji:"🍔", calories:520, protein:28, fat:26, carbs:42, ingredients:"Говяжья котлета 150г, сыр чеддер, салат айсберг, помидор, маринованные огурцы, соус BBQ, булка с кунжутом", modelId:"burgerGroup" },
-            pizza: { name:"Пицца Маргарита", emoji:"🍕", calories:680, protein:24, fat:28, carbs:75, ingredients:"Томатный соус, моцарелла, свежие томаты, базилик, оливковое масло, тесто", modelId:"pizzaGroup" },
-            sushi: { name:"Роллы Филадельфия", emoji:"🍣", calories:380, protein:18, fat:16, carbs:42, ingredients:"Рис, лосось, сливочный сыр, огурец, авокадо, нори, кунжут", modelId:"sushiGroup" },
-            salad: { name:"Цезарь с курицей", emoji:"🥗", calories:410, protein:32, fat:24, carbs:18, ingredients:"Куриное филе, салат романо, пармезан, сухарики, соус Цезарь", modelId:"saladGroup" },
-            pasta: { name:"Паста Карбонара", emoji:"🍝", calories:720, protein:26, fat:34, carbs:72, ingredients:"Спагетти, гуанчиале, яйцо, пекорино романо, чёрный перец", modelId:"pastaGroup" },
-            steak: { name:"Стейк Рибай", emoji:"🥩", calories:890, protein:52, fat:68, carbs:2, ingredients:"Мраморная говядина 250г, розмарин, тимьян, чеснок, сливочное масло", modelId:"steakGroup" },
-            bowl: { name:"Йогурт с гранолой", emoji:"🥣", calories:320, protein:15, fat:12, carbs:38, ingredients:"Йогурт 5%, гранола, ягоды, мёд, семена чиа", modelId:"bowlGroup" },
-            coffee: { name:"Латте", emoji:"☕", calories:180, protein:8, fat:9, carbs:14, ingredients:"Эспрессо, молоко 3.2%, сироп, корица", modelId:"coffeeGroup" },
-            donut: { name:"Пончик", emoji:"🍩", calories:350, protein:5, fat:18, carbs:44, ingredients:"Дрожжевое тесто, шоколадная глазурь, посыпка", modelId:"donutGroup" },
-            icecream: { name:"Пломбир", emoji:"🍦", calories:220, protein:4, fat:14, carbs:20, ingredients:"Сливки 33%, яичный желток, сахар, ваниль", modelId:"icecreamGroup" }
+            burger:   { name:"Чизбургер",         emoji:"🍔", calories:520, protein:28, fat:26, carbs:42, ingredients:"Говяжья котлета 150г, сыр чеддер, салат, помидор, огурцы, соус BBQ, булка с кунжутом", modelId:"burgerGroup", baseScale: 0.15 },
+            pizza:    { name:"Пицца Маргарита",   emoji:"🍕", calories:680, protein:24, fat:28, carbs:75, ingredients:"Томатный соус, моцарелла, томаты, базилик, оливковое масло, тесто",           modelId:"pizzaGroup",  baseScale: 0.15 },
+            sushi:    { name:"Роллы Филадельфия", emoji:"🍣", calories:380, protein:18, fat:16, carbs:42, ingredients:"Рис, лосось, сливочный сыр, огурец, авокадо, нори, кунжут",                  modelId:"sushiGroup",  baseScale: 0.15 },
+            salad:    { name:"Цезарь с курицей",  emoji:"🥗", calories:410, protein:32, fat:24, carbs:18, ingredients:"Куриное филе, салат романо, пармезан, сухарики, соус Цезарь",                modelId:"saladGroup",  baseScale: 0.15 },
+            pasta:    { name:"Паста Карбонара",   emoji:"🍝", calories:720, protein:26, fat:34, carbs:72, ingredients:"Спагетти, гуанчиале, яйцо, пекорино, чёрный перец",                          modelId:"pastaGroup",  baseScale: 1 },
+            steak:    { name:"Стейк Рибай",       emoji:"🥩", calories:890, protein:52, fat:68, carbs:2,  ingredients:"Мраморная говядина 250г, розмарин, тимьян, чеснок, масло",                   modelId:"steakGroup",  baseScale: 0.15 },
+            bowl:     { name:"Йогурт с гранолой", emoji:"🥣", calories:320, protein:15, fat:12, carbs:38, ingredients:"Йогурт 5%, гранола, ягоды, мёд, чиа",                                        modelId:"bowlGroup",   baseScale: 1 },
+            coffee:   { name:"Латте",             emoji:"☕", calories:180, protein:8,  fat:9,  carbs:14, ingredients:"Эспрессо, молоко 3.2%, сироп, корица",                                       modelId:"coffeeGroup", baseScale: 0.15 },
+            donut:    { name:"Пончик",            emoji:"🍩", calories:350, protein:5,  fat:18, carbs:44, ingredients:"Дрожжевое тесто, шоколадная глазурь, посыпка",                              modelId:"donutGroup",  baseScale: 1 },
+            icecream: { name:"Пломбир",           emoji:"🍦", calories:220, protein:4,  fat:14, carbs:20, ingredients:"Сливки 33%, желток, сахар, ваниль",                                          modelId:"icecreamGroup", baseScale: 1 }
         };
 
         const dishKeys = Object.keys(dishes);
 
-        // ===== ЗАЙЧИК: ДИАЛОГИ =====
+        // ===== ЗАЙЧИК =====
         const bunnyGreetings = [
             "Привет-привет! 🐾 Я <span class='highlight'>Зайка-гурман</span>! Помогу выбрать вкусняшку!",
             "Ой, снова ты! 💚 Давай найдём тебе что-то особенное?",
             "Ку-ку! 🌸 Готов к гастро-приключению?",
-            "Здравствуй, друг! 🥕 У меня есть для тебя идея...",
+            "Здравствуй, друг! 🥕 У меня есть для тебя идея..."
         ];
 
         const bunnySuggestions = {
-            burger: [
-                "Ммм, <span class='highlight'>бургер</span>! 🍔 Сочная котлетка, расплавленный сыр... Мне б морковный, но тебе — мясной!",
-                "Классика! Этот <span class='highlight'>чизбургер</span> просто тает во рту! Попробуй, не пожалеешь! 🤤",
-            ],
-            pizza: [
-                "А ты знал, что <span class='highlight'>Маргарита</span> — любимая пицца итальянских зайцев? 🍕 Ну, я так слышал...",
-                "<span class='highlight'>Пицца!</span> Базилик, моцарелла... У меня лапки трясутся от запаха! 🍕✨",
-            ],
-            sushi: [
-                "О-о-о, <span class='highlight'>роллы</span>! 🍣 Лосось такой нежный... Я бы съел три порции! Если бы я ел рыбу... 🐰",
-                "<span class='highlight'>Филадельфия</span> — это искусство! Рис, рыбка, сыр — идеальное трио! 🍣",
-            ],
-            salad: [
-                "Наконец-то что-то <span class='highlight'>зелёненькое</span>! 🥗 Цезарь с курицей — это и вкусно, и полезно! Мой выбор! 🐰💚",
-                "<span class='highlight'>Салат!</span> Хрустящий, свежий... Мне бы без курицы, но тебе — с ней! 🥗",
-            ],
-            pasta: [
-                "<span class='highlight'>Карбонара!</span> 🍝 Знаешь, в Италии зайцы тоже едят пасту. Нет, серьёзно. Ну, почти.",
-                "Эта <span class='highlight'>паста</span> такая кремовая... 🤤 Пекорино, яйцо, гуанчиале — итальянская магия!",
-            ],
-            steak: [
-                "Ого, <span class='highlight'>рибай</span>! 🥩 Это серьёзный выбор! 890 калорий МЯСА. Я немного завидую... 🐰",
-                "<span class='highlight'>Стейк</span> мраморный! С розмарином! У меня даже уши покраснели от волнения! 🥩🔥",
-            ],
-            bowl: [
-                "<span class='highlight'>Йогурт с гранолой!</span> 🥣 Ягодки, мёд, чиа... Это как завтрак в раю! Зайка одобряет! ✅",
-                "Лёгкий и полезный <span class='highlight'>боул</span>! 🥣 Идеальный выбор для тех, кто следит за фигурой! Как я! 🐰",
-            ],
-            coffee: [
-                "<span class='highlight'>Латте!</span> ☕ Мне нельзя кофе — я и так слишком прыгучий. Но тебе — можно! Вкусный!",
-                "Ароматный <span class='highlight'>латте</span> с корицей... ☕ Прелесть! А мне, пожалуйста, морковный сок 🥕",
-            ],
-            donut: [
-                "<span class='highlight'>Пончик!</span> 🍩 Шоколадная глазурь, посыпка... Это не еда, это СЧАСТЬЕ!",
-                "Ай-ай-ай, <span class='highlight'>пончик</span>! 🍩 Вкусно, но калорийно! Ладно, один можно... 🤫",
-            ],
-            icecream: [
-                "<span class='highlight'>Пломбир!</span> 🍦 Ванильный, сливочный... У меня мозг замёрз от восторга! 🧊🐰",
-                "Три шарика <span class='highlight'>мороженого</span>! С вишенкой! 🍦 Это же мечта! Давай возьмём два? 😏",
-            ],
+            burger:   ["Ммм, <span class='highlight'>бургер</span>! 🍔 Сочная котлетка, расплавленный сыр... Я б морковный, но тебе — мясной!","Классика! <span class='highlight'>Чизбургер</span> просто тает во рту! 🤤"],
+            pizza:    ["А ты знал, что <span class='highlight'>Маргарита</span> — любимая пицца итальянских зайцев? 🍕","<span class='highlight'>Пицца!</span> Базилик, моцарелла... У меня лапки трясутся! ✨"],
+            sushi:    ["О-о-о, <span class='highlight'>роллы</span>! 🍣 Лосось такой нежный...","<span class='highlight'>Филадельфия</span> — искусство! 🍣"],
+            salad:    ["Наконец-то <span class='highlight'>зелёненькое</span>! 🥗 Мой выбор! 💚","<span class='highlight'>Салат!</span> Хрустящий, свежий... 🥗"],
+            pasta:    ["<span class='highlight'>Карбонара!</span> 🍝 В Италии зайцы тоже её едят!","Эта <span class='highlight'>паста</span> такая кремовая... 🤤"],
+            steak:    ["Ого, <span class='highlight'>рибай</span>! 🥩 890 калорий МЯСА. Я завидую! 🐰","<span class='highlight'>Стейк</span> мраморный! 🔥"],
+            bowl:     ["<span class='highlight'>Йогурт с гранолой!</span> 🥣 Это рай! ✅","Лёгкий <span class='highlight'>боул</span>! 🥣"],
+            coffee:   ["<span class='highlight'>Латте!</span> ☕ Мне нельзя — я и так прыгучий!","Ароматный <span class='highlight'>латте</span> с корицей... ☕"],
+            donut:    ["<span class='highlight'>Пончик!</span> 🍩 Это СЧАСТЬЕ!","Ай-ай, <span class='highlight'>пончик</span>! 🍩 Калорийно, но один можно! 🤫"],
+            icecream: ["<span class='highlight'>Пломбир!</span> 🍦 Мозг замёрз от восторга! 🧊","Три шарика <span class='highlight'>мороженого</span>! 🍦 Мечта!"]
         };
 
         const bunnyReactions = {
-            like: [
-                "Ура! Ты попробовал! 🎉 Вкусно, правда? Я знал!",
-                "Отличный выбор! 💛 Ты мне нравишься, у тебя хороший вкус!",
-                "Мммм! 😋 Даже мои усы задрожали от удовольствия!",
-                "Вот ЭТО я понимаю! 🌟 Ты настоящий гурман!",
-            ],
-            dislike: [
-                "Ну ладно... 😢 Не все любят одинаковое. Попробуем другое?",
-                "Хм, окей! 🤔 У меня есть ещё идеи! Не сдавайся!",
-                "Бывает! 🐰 Главное — найти СВОЁ блюдо. Давай ещё попробуем!",
-            ],
-            pet: [
-                "Хи-хи, щекотно! 🐰💕 Спасибо за ласку!",
-                "Мне так приятно! 🥰 Ты лучший друг зайки!",
-                "Ой-ой, мои ушки! 🐾 Обожаю поглаживания!",
-                "*прыг-прыг* 🐰✨ Счастливый зайка!",
-            ],
-            quiz: [
-                "А давай угадаем! 🎲 Сколько калорий в бургере?",
-                "Загадка! 🧩 Какое блюдо самое белковое в нашем меню?",
-                "Квиз-тайм! 🎯 Что калорийнее — пицца или стейк?",
-            ],
+            like:    ["Ура! Вкусно, правда? 🎉","Отличный выбор! 💛","Мммм! 😋","ЭТО я понимаю! 🌟"],
+            dislike: ["Ну ладно... 😢 Попробуем другое?","Хм, окей! 🤔","Бывает! 🐰"],
+            pet:     ["Хи-хи, щекотно! 💕","Мне так приятно! 🥰","Ой, мои ушки! 🐾","*прыг-прыг* ✨"]
         };
 
         const quizzes = [
-            { q: "Сколько калорий в бургере?", options: ["~350","~520","~700"], correct: 1, emoji: "🍔" },
-            { q: "Какое блюдо самое белковое?", options: ["🥩 Стейк","🍕 Пицца","🍦 Пломбир"], correct: 0, emoji: "💪" },
-            { q: "Что калорийнее?", options: ["🍕 Пицца (680)","🥩 Стейк (890)","🍝 Паста (720)"], correct: 1, emoji: "🔥" },
-            { q: "Где больше углеводов?", options: ["🍝 Паста","🥗 Салат","🥩 Стейк"], correct: 0, emoji: "🍚" },
-            { q: "Самое лёгкое блюдо?", options: ["☕ Латте (180)","🍦 Пломбир (220)","🥣 Йогурт (320)"], correct: 0, emoji: "🪶" },
+            { q:"Сколько калорий в бургере?", options:["~350","~520","~700"], correct:1, emoji:"🍔" },
+            { q:"Какое блюдо самое белковое?", options:["🥩 Стейк","🍕 Пицца","🍦 Пломбир"], correct:0, emoji:"💪" },
+            { q:"Что калорийнее?", options:["🍕 Пицца (680)","🥩 Стейк (890)","🍝 Паста (720)"], correct:1, emoji:"🔥" },
+            { q:"Где больше углеводов?", options:["🍝 Паста","🥗 Салат","🥩 Стейк"], correct:0, emoji:"🍚" },
+            { q:"Самое лёгкое блюдо?", options:["☕ Латте (180)","🍦 Пломбир (220)","🥣 Йогурт (320)"], correct:0, emoji:"🪶" }
         ];
 
-        // ===== СОСТОЯНИЕ ЗАЙЧИКА =====
-        let friendship = 0; // 0-5
-        let bunnyMood = 'happy'; // happy, excited, sleepy, love
+        let friendship = 0;
         let bunnyVisible = true;
         let bunnyIdle = null;
         let triedDishes = new Set();
-        let lastInteraction = Date.now();
 
         const bunnyText = document.getElementById('bunnyText');
         const bunnyActions = document.getElementById('bunnyActions');
@@ -557,7 +507,6 @@
         const friendshipLabel = document.getElementById('friendshipLabel');
         const heartsDisplay = document.getElementById('heartsDisplay');
 
-        // ===== ЭЛЕМЕНТЫ UI =====
         const infoCard = document.getElementById('infoCard');
         const dishNameEl = document.getElementById('dishName');
         const dishEmojiEl = document.getElementById('dishEmoji');
@@ -568,33 +517,36 @@
         const ingredientsTextEl = document.getElementById('ingredientsText');
         const dishTextEl = document.getElementById('dishText');
         const bottomSheet = document.getElementById('bottomSheet');
+        const modelControls = document.getElementById('modelControls');
+        const gestureHint = document.getElementById('gestureHint');
+        const dishModelEl = document.getElementById('dishModel');
 
         let currentDish = 'burger';
         let menuVisible = true;
         let infoVisible = false;
 
-        // ===== ФУНКЦИИ =====
+        // ===== СОСТОЯНИЕ ТРАНСФОРМА =====
+        let userScale = 1.0;        // множитель к baseScale
+        let userRotationY = 0;      // дополнительный поворот по Y
+        let autoRotate = true;      // авто-вращение
+
         function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
         function updateFriendship() {
             const labels = ['Новый друг','Знакомый','Приятель','Друг','Лучший друг','ОБОЖАЮ! 💖'];
-            const moods = ['🐰','🐰','😊','🥰','💛','💖'];
-            friendshipLabel.textContent = labels[Math.min(friendship, 5)];
+            friendshipLabel.textContent = labels[Math.min(friendship,5)];
             let hearts = '';
-            for (let i = 0; i < 5; i++) hearts += i < friendship ? '♥' : '♡';
+            for (let i=0;i<5;i++) hearts += i<friendship ? '♥' : '♡';
             heartsDisplay.textContent = hearts;
-            if (friendship >= 4) bunnyAvatar.textContent = '🐰';
         }
 
         function addFriendship(n) {
-            friendship = Math.min(5, Math.max(0, friendship + n));
+            friendship = Math.min(5, Math.max(0, friendship+n));
             updateFriendship();
         }
 
         function showReaction(emoji) {
             const el = document.createElement('div');
-            el.className = 'confetti-piece';
-            el.style.cssText = 'position:fixed;z-index:9999;pointer-events:none;font-size:48px;';
             el.className = 'bunny-reaction';
             el.textContent = emoji;
             document.body.appendChild(el);
@@ -606,16 +558,23 @@
             container.className = 'confetti';
             document.body.appendChild(container);
             const colors = ['#FF6B35','#F7C948','#4ECDC4','#FF6B9D','#A8E6CF','#FFE66D'];
-            for (let i = 0; i < 30; i++) {
+            for (let i=0;i<30;i++) {
                 const piece = document.createElement('div');
                 piece.className = 'confetti-piece';
-                piece.style.left = Math.random() * 100 + '%';
+                piece.style.left = Math.random()*100 + '%';
                 piece.style.background = pick(colors);
-                piece.style.animationDelay = Math.random() * 0.8 + 's';
-                piece.style.animationDuration = (1.5 + Math.random()) + 's';
+                piece.style.animationDelay = Math.random()*0.8 + 's';
+                piece.style.animationDuration = (1.5+Math.random()) + 's';
                 container.appendChild(piece);
             }
             setTimeout(() => container.remove(), 3000);
+        }
+
+        function showHint(text) {
+            gestureHint.textContent = text;
+            gestureHint.classList.add('show');
+            clearTimeout(gestureHint._t);
+            gestureHint._t = setTimeout(() => gestureHint.classList.remove('show'), 1000);
         }
 
         function setBunnyText(text, actions) {
@@ -623,87 +582,91 @@
             bunnyActions.innerHTML = '';
             actions.forEach(a => {
                 const btn = document.createElement('button');
-                btn.className = 'bunny-btn ' + (a.style || 'secondary');
+                btn.className = 'bunny-btn ' + (a.style||'secondary');
                 btn.textContent = a.label;
                 btn.onclick = a.action;
                 bunnyActions.appendChild(btn);
             });
             bunnyDialog.classList.remove('hidden');
-            lastInteraction = Date.now();
             resetIdleTimer();
         }
 
-        // ===== ДЕЙСТВИЯ ЗАЙЧИКА =====
         function bunnyAction(type) {
             switch(type) {
                 case 'hi':
-                    addFriendship(1);
-                    showReaction('👋');
+                    addFriendship(1); showReaction('👋');
                     setBunnyText(pick(bunnyGreetings), [
-                        { label: '🎲 Предложи блюдо!', style: 'primary', action: () => bunnyAction('suggest') },
-                        { label: '🧩 Квиз!', style: 'pink', action: () => bunnyAction('quiz') },
-                        { label: '🐾 Погладить', style: 'success', action: () => bunnyAction('pet') },
+                        { label:'🎲 Предложи!', style:'primary', action:()=>bunnyAction('suggest') },
+                        { label:'🧩 Квиз!', style:'pink', action:()=>bunnyAction('quiz') },
+                        { label:'🐾 Погладить', style:'success', action:()=>bunnyAction('pet') }
                     ]);
                     break;
-
                 case 'suggest':
                     const randomDish = pick(dishKeys);
-                    const d = dishes[randomDish];
                     selectDish(randomDish);
-                    const suggestion = pick(bunnySuggestions[randomDish]);
-                    setBunnyText(suggestion, [
-                        { label: `😋 Вкусно!`, style: 'success', action: () => bunnyAction('like') },
-                        { label: `😐 Не хочу`, style: 'secondary', action: () => bunnyAction('dislike') },
-                        { label: '🎲 Другое!', style: 'primary', action: () => bunnyAction('suggest') },
+                    setBunnyText(pick(bunnySuggestions[randomDish]), [
+                        { label:'😋 Вкусно!', style:'success', action:()=>bunnyAction('like') },
+                        { label:'😐 Не хочу', style:'secondary', action:()=>bunnyAction('dislike') },
+                        { label:'🎲 Другое!', style:'primary', action:()=>bunnyAction('suggest') }
                     ]);
-                    showReaction(d.emoji);
+                    showReaction(dishes[randomDish].emoji);
                     break;
-
                 case 'like':
-                    addFriendship(1);
-                    triedDishes.add(currentDish);
-                    showReaction('😋');
-                    showConfetti();
-                    const likeText = pick(bunnyReactions.like);
-                    const triedCount = triedDishes.size;
-                    const bonus = triedCount >= 5 ? `<br><br>🏆 Ты попробовал уже <span class='highlight'>${triedCount} блюд</span>! Настоящий гурман!` : '';
-                    setBunnyText(likeText + bonus, [
-                        { label: '🎲 Ещё!', style: 'primary', action: () => bunnyAction('suggest') },
-                        { label: '🧩 Квиз!', style: 'pink', action: () => bunnyAction('quiz') },
-                        { label: '🐾 Погладить', style: 'success', action: () => bunnyAction('pet') },
+                    addFriendship(1); triedDishes.add(currentDish);
+                    showReaction('😋'); showConfetti();
+                    const bonus = triedDishes.size >= 5 ? `<br><br>🏆 Ты попробовал <span class='highlight'>${triedDishes.size} блюд</span>!` : '';
+                    setBunnyText(pick(bunnyReactions.like)+bonus, [
+                        { label:'🎲 Ещё!', style:'primary', action:()=>bunnyAction('suggest') },
+                        { label:'🧩 Квиз!', style:'pink', action:()=>bunnyAction('quiz') },
+                        { label:'🐾 Погладить', style:'success', action:()=>bunnyAction('pet') }
                     ]);
                     break;
-
                 case 'dislike':
                     showReaction('😢');
                     setBunnyText(pick(bunnyReactions.dislike), [
-                        { label: '🎲 Давай другое!', style: 'primary', action: () => bunnyAction('suggest') },
-                        { label: '🐾 Не грусти!', style: 'success', action: () => bunnyAction('pet') },
+                        { label:'🎲 Другое!', style:'primary', action:()=>bunnyAction('suggest') },
+                        { label:'🐾 Не грусти!', style:'success', action:()=>bunnyAction('pet') }
                     ]);
                     break;
-
                 case 'pet':
-                    addFriendship(1);
-                    showReaction('💕');
-                    bunnyAvatar.style.animation = 'none';
-                    bunnyAvatar.offsetHeight;
+                    addFriendship(1); showReaction('💕');
+                    bunnyAvatar.style.animation = 'none'; bunnyAvatar.offsetHeight;
                     bunnyAvatar.style.animation = 'bunnyBounce 0.3s ease 5';
                     setTimeout(() => bunnyAvatar.style.animation = 'bunnyBounce 2s ease-in-out infinite', 1500);
                     setBunnyText(pick(bunnyReactions.pet), [
-                        { label: '🎲 Предложи блюдо!', style: 'primary', action: () => bunnyAction('suggest') },
-                        { label: '🧩 Квиз!', style: 'pink', action: () => bunnyAction('quiz') },
-                        { label: '💕 Ещё!', style: 'success', action: () => bunnyAction('pet') },
+                        { label:'🎲 Предложи!', style:'primary', action:()=>bunnyAction('suggest') },
+                        { label:'🧩 Квиз!', style:'pink', action:()=>bunnyAction('quiz') },
+                        { label:'💕 Ещё!', style:'success', action:()=>bunnyAction('pet') }
                     ]);
                     break;
-
                 case 'quiz':
-                    startQuiz();
+                    const quiz = pick(quizzes);
+                    showReaction(quiz.emoji);
+                    setBunnyText(`${quiz.emoji} <span class='highlight'>Квиз!</span><br>${quiz.q}`,
+                        quiz.options.map((opt,i) => ({
+                            label: opt, style: 'secondary',
+                            action: () => {
+                                if (i === quiz.correct) {
+                                    addFriendship(1); showReaction('🎉'); showConfetti();
+                                    setBunnyText("🎉 <span class='highlight'>ПРАВИЛЬНО!</span> Зайка горд! 🐰⭐", [
+                                        { label:'🧩 Ещё!', style:'pink', action:()=>bunnyAction('quiz') },
+                                        { label:'🎲 Блюдо!', style:'primary', action:()=>bunnyAction('suggest') }
+                                    ]);
+                                } else {
+                                    showReaction('😅');
+                                    setBunnyText("Ой, не то! 😅 Попробуй ещё! 💪", [
+                                        { label:'🧩 Ещё!', style:'pink', action:()=>bunnyAction('quiz') },
+                                        { label:'🎲 Лучше поедим!', style:'primary', action:()=>bunnyAction('suggest') }
+                                    ]);
+                                }
+                            }
+                        }))
+                    );
                     break;
-
                 case 'sleepy':
-                    setBunnyText("*зевает* 🥱 Что-то ты молчишь... Может, выберем блюдо? Или погладь меня! 🐾", [
-                        { label: '🎲 Давай!', style: 'primary', action: () => bunnyAction('suggest') },
-                        { label: '🐾 Погладить', style: 'success', action: () => bunnyAction('pet') },
+                    setBunnyText("*зевает* 🥱 Что-то ты молчишь... Может, блюдо? 🐾", [
+                        { label:'🎲 Давай!', style:'primary', action:()=>bunnyAction('suggest') },
+                        { label:'🐾 Погладить', style:'success', action:()=>bunnyAction('pet') }
                     ]);
                     bunnyAvatar.textContent = '😴';
                     setTimeout(() => bunnyAvatar.textContent = '🐰', 3000);
@@ -711,37 +674,6 @@
             }
         }
 
-        // ===== КВИЗ =====
-        function startQuiz() {
-            const quiz = pick(quizzes);
-            showReaction(quiz.emoji);
-            let btns = quiz.options.map((opt, i) => ({
-                label: opt,
-                style: 'secondary',
-                action: () => answerQuiz(i === quiz.correct, quiz)
-            }));
-            setBunnyText(`${quiz.emoji} <span class='highlight'>Квиз!</span><br>${quiz.q}`, btns);
-        }
-
-        function answerQuiz(correct, quiz) {
-            if (correct) {
-                addFriendship(1);
-                showReaction('🎉');
-                showConfetti();
-                setBunnyText("🎉 <span class='highlight'>ПРАВИЛЬНО!</span> Ты умница! Зайка горд тобой! 🐰⭐", [
-                    { label: '🧩 Ещё квиз!', style: 'pink', action: () => bunnyAction('quiz') },
-                    { label: '🎲 Блюдо!', style: 'primary', action: () => bunnyAction('suggest') },
-                ]);
-            } else {
-                showReaction('😅');
-                setBunnyText("Ой, не то! 😅 Но ничего, в следующий раз точно угадаешь! 💪🐰", [
-                    { label: '🧩 Попробовать ещё!', style: 'pink', action: () => bunnyAction('quiz') },
-                    { label: '🎲 Лучше поедим!', style: 'primary', action: () => bunnyAction('suggest') },
-                ]);
-            }
-        }
-
-        // ===== IDLE / СОН =====
         function resetIdleTimer() {
             clearTimeout(bunnyIdle);
             bunnyIdle = setTimeout(() => {
@@ -774,95 +706,179 @@
             document.querySelectorAll('.dish-card').forEach(c => {
                 c.classList.toggle('active', c.dataset.dish === dishId);
             });
+
+            // сброс юзерских трансформов при выборе нового блюда
+            userScale = 1.0;
+            userRotationY = 0;
+            applyTransforms();
         }
 
-        // ===== КНОПКИ =====
+        // ===== ПРИМЕНЕНИЕ ТРАНСФОРМОВ =====
+        function applyTransforms() {
+            const s = userScale;
+            dishModelEl.setAttribute('scale', `${s} ${s} ${s}`);
+        }
+
+        // ===== КНОПКИ КОНТРОЛОВ =====
+        document.getElementById('scaleUpBtn').onclick = () => {
+            userScale = Math.min(5, userScale * 1.2);
+            applyTransforms();
+            showHint(`📏 ${Math.round(userScale*100)}%`);
+        };
+        document.getElementById('scaleDownBtn').onclick = () => {
+            userScale = Math.max(0.2, userScale / 1.2);
+            applyTransforms();
+            showHint(`📏 ${Math.round(userScale*100)}%`);
+        };
+        document.getElementById('rotateLeftBtn').onclick = () => {
+            autoRotate = false;
+            userRotationY -= 30;
+            showHint('↺ Поворот');
+        };
+        document.getElementById('rotateRightBtn').onclick = () => {
+            autoRotate = false;
+            userRotationY += 30;
+            showHint('↻ Поворот');
+        };
+        document.getElementById('resetBtn').onclick = () => {
+            userScale = 1.0;
+            userRotationY = 0;
+            autoRotate = true;
+            applyTransforms();
+            showHint('🔄 Сброс');
+        };
+
+        // ===== КНОПКИ ВЕРХА =====
         document.getElementById('toggleMenuBtn').addEventListener('click', () => {
             menuVisible = !menuVisible;
             bottomSheet.classList.toggle('hidden', !menuVisible);
             document.getElementById('toggleMenuBtn').classList.toggle('active', !menuVisible);
         });
-
         document.getElementById('toggleInfoBtn').addEventListener('click', () => {
             infoVisible = !infoVisible;
             infoCard.classList.toggle('collapsed', !infoVisible);
             document.getElementById('toggleInfoBtn').classList.toggle('active', !infoVisible);
         });
-
         document.getElementById('bunnyToggle').addEventListener('click', () => {
             bunnyVisible = !bunnyVisible;
             bunnyDialog.classList.toggle('hidden', !bunnyVisible);
             document.getElementById('bunnyToggle').classList.toggle('active', !bunnyVisible);
-            if (bunnyVisible) {
-                bunnyAction('hi');
-            }
+            if (bunnyVisible) bunnyAction('hi');
         });
 
-        // Погладить зайку тапом
         bunnyAvatar.addEventListener('click', () => bunnyAction('pet'));
 
-        // Карточки
         document.querySelectorAll('.dish-card').forEach(card => {
             card.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const dishId = card.dataset.dish;
                 selectDish(dishId);
-                // Зайчик комментирует выбор
                 if (bunnyVisible) {
-                    const d = dishes[dishId];
-                    const comment = pick(bunnySuggestions[dishId]);
-                    setBunnyText(comment, [
-                        { label: '😋 Беру!', style: 'success', action: () => bunnyAction('like') },
-                        { label: '🎲 Другое', style: 'primary', action: () => bunnyAction('suggest') },
+                    setBunnyText(pick(bunnySuggestions[dishId]), [
+                        { label:'😋 Беру!', style:'success', action:()=>bunnyAction('like') },
+                        { label:'🎲 Другое', style:'primary', action:()=>bunnyAction('suggest') }
                     ]);
-                    showReaction(d.emoji);
+                    showReaction(dishes[dishId].emoji);
                 }
             });
         });
 
-        // ===== ПЕРЕМЕЩЕНИЕ =====
-        let isDragging = false, lastX = 0, lastY = 0;
+        // ===== ЖЕСТЫ: ПЕРЕМЕЩЕНИЕ + ЩИПОК (МАСШТАБ) + ПОВОРОТ =====
+        let isDragging = false;
+        let lastX = 0, lastY = 0;
+        let initialPinchDist = 0;
+        let initialPinchScale = 1;
+        let initialPinchAngle = 0;
+        let initialUserRotY = 0;
+        let isPinching = false;
+
+        function isUITouch(target) {
+            return target.closest('.bottom-sheet') || target.closest('.top-bar') ||
+                   target.closest('.info-card') || target.closest('.bunny-dialog') ||
+                   target.closest('.friendship-bar') || target.closest('.model-controls') ||
+                   target.closest('.gesture-hint');
+        }
+
+        function getPinchDist(t1, t2) {
+            const dx = t1.clientX - t2.clientX;
+            const dy = t1.clientY - t2.clientY;
+            return Math.sqrt(dx*dx + dy*dy);
+        }
+        function getPinchAngle(t1, t2) {
+            return Math.atan2(t2.clientY - t1.clientY, t2.clientX - t1.clientX) * 180 / Math.PI;
+        }
+
         document.addEventListener('touchstart', (e) => {
-            if (e.target.closest('.bottom-sheet') || e.target.closest('.top-bar') ||
-                e.target.closest('.info-card') || e.target.closest('.bunny-dialog') ||
-                e.target.closest('.friendship-bar')) return;
-            isDragging = true;
-            lastX = e.touches[0].clientX;
-            lastY = e.touches[0].clientY;
+            if (isUITouch(e.target)) return;
+
+            if (e.touches.length === 2) {
+                isPinching = true;
+                isDragging = false;
+                initialPinchDist = getPinchDist(e.touches[0], e.touches[1]);
+                initialPinchScale = userScale;
+                initialPinchAngle = getPinchAngle(e.touches[0], e.touches[1]);
+                initialUserRotY = userRotationY;
+                autoRotate = false;
+            } else if (e.touches.length === 1) {
+                isDragging = true;
+                lastX = e.touches[0].clientX;
+                lastY = e.touches[0].clientY;
+            }
         }, { passive: true });
 
         document.addEventListener('touchmove', (e) => {
-            if (!isDragging) return;
-            const t = e.touches[0];
-            const dx = (t.clientX - lastX) * 0.004;
-            const dy = (t.clientY - lastY) * 0.004;
-            const m = document.getElementById('dishModel');
-            if (m) {
-                const p = m.getAttribute('position');
-                m.setAttribute('position', { x: p.x + dx, y: p.y, z: p.z + dy });
+            if (isUITouch(e.target)) return;
+
+            if (isPinching && e.touches.length === 2) {
+                const newDist = getPinchDist(e.touches[0], e.touches[1]);
+                const newAngle = getPinchAngle(e.touches[0], e.touches[1]);
+
+                // Масштаб
+                const scaleFactor = newDist / initialPinchDist;
+                userScale = Math.max(0.2, Math.min(5, initialPinchScale * scaleFactor));
+
+                // Поворот
+                const angleDelta = newAngle - initialPinchAngle;
+                userRotationY = initialUserRotY + angleDelta;
+
+                applyTransforms();
+                showHint(`📏 ${Math.round(userScale*100)}%  •  ↻ ${Math.round(userRotationY)}°`);
+            } else if (isDragging && e.touches.length === 1) {
+                const t = e.touches[0];
+                const dx = (t.clientX - lastX) * 0.004;
+                const dy = (t.clientY - lastY) * 0.004;
+                const p = dishModelEl.getAttribute('position');
+                dishModelEl.setAttribute('position', { x: p.x + dx, y: p.y, z: p.z + dy });
+                lastX = t.clientX;
+                lastY = t.clientY;
             }
-            lastX = t.clientX; lastY = t.clientY;
         }, { passive: true });
 
-        document.addEventListener('touchend', () => { isDragging = false; });
+        document.addEventListener('touchend', (e) => {
+            if (e.touches.length === 0) {
+                isDragging = false;
+                isPinching = false;
+            }
+        });
 
-        // ===== АВТО-ВРАЩЕНИЕ =====
+        // ===== АВТО-ВРАЩЕНИЕ + ПРИМЕНЕНИЕ ПОВОРОТА =====
         (function () {
-            const model = document.getElementById('dishModel');
             function rotate() {
-                if (model && model.object3D) model.object3D.rotation.y += 0.008;
+                if (dishModelEl && dishModelEl.object3D) {
+                    if (autoRotate) userRotationY += 0.5; // градусы за кадр
+                    dishModelEl.object3D.rotation.y = userRotationY * Math.PI / 180;
+                }
                 requestAnimationFrame(rotate);
             }
-            setTimeout(rotate, 2000);
+            setTimeout(rotate, 1000);
         })();
 
         // ===== СТАРТ =====
         selectDish('burger');
         updateFriendship();
         resetIdleTimer();
-
-        // Зайка приветствует через секунду
         setTimeout(() => bunnyAction('hi'), 1500);
+        setTimeout(() => showHint('👌 Щипок — масштаб и поворот'), 2500);
     </script>
 </body>
 </html>
