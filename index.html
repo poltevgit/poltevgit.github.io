@@ -6,10 +6,10 @@
     <title>AR Menu</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
-    
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-        
+
         * {
             margin: 0;
             padding: 0;
@@ -25,7 +25,7 @@
             background: #000;
         }
 
-        /* ===== ВЕРХНЯЯ ПАНЕЛЬ ===== */
+        /* Верхняя панель */
         .top-bar {
             position: fixed;
             top: 0;
@@ -37,13 +37,11 @@
             align-items: center;
             padding: 12px 16px;
             padding-top: max(12px, env(safe-area-inset-top));
-            background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%);
+            background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 100%);
             pointer-events: none;
         }
 
-        .top-bar > * {
-            pointer-events: auto;
-        }
+        .top-bar > * { pointer-events: auto; }
 
         .logo {
             display: flex;
@@ -52,7 +50,6 @@
             color: white;
             font-weight: 700;
             font-size: 18px;
-            letter-spacing: -0.5px;
         }
 
         .logo-icon {
@@ -89,29 +86,26 @@
             transition: all 0.2s ease;
         }
 
-        .icon-btn:active {
-            transform: scale(0.9);
-            background: rgba(255,255,255,0.25);
-        }
+        .icon-btn:active { transform: scale(0.9); }
 
         .icon-btn.active {
             background: linear-gradient(135deg, #FF6B35, #F7C948);
             box-shadow: 0 4px 15px rgba(255,107,53,0.4);
         }
 
-        /* ===== ИНФО-КАРТОЧКА ===== */
+        /* Инфо-карточка */
         .info-card {
             position: fixed;
-            top: 80px;
+            top: 72px;
             top: calc(max(12px, env(safe-area-inset-top)) + 56px);
-            left: 16px;
-            right: 16px;
+            left: 12px;
+            right: 12px;
             z-index: 250;
-            background: rgba(20, 20, 30, 0.85);
+            background: rgba(15, 15, 25, 0.88);
             backdrop-filter: blur(30px);
             -webkit-backdrop-filter: blur(30px);
             border-radius: 20px;
-            padding: 20px;
+            padding: 18px;
             color: white;
             border: 1px solid rgba(255,255,255,0.08);
             box-shadow: 0 20px 60px rgba(0,0,0,0.5);
@@ -120,7 +114,7 @@
         }
 
         .info-card.collapsed {
-            transform: translateY(-10px);
+            transform: translateY(-20px) scale(0.95);
             opacity: 0;
             pointer-events: none;
         }
@@ -129,30 +123,26 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .dish-name {
             font-size: 20px;
             font-weight: 700;
             letter-spacing: -0.3px;
-            line-height: 1.2;
         }
 
-        .dish-emoji {
-            font-size: 32px;
-            line-height: 1;
-        }
+        .dish-emoji { font-size: 32px; }
 
         .calories-row {
             display: flex;
             align-items: baseline;
             gap: 4px;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
         }
 
         .cal-number {
-            font-size: 36px;
+            font-size: 34px;
             font-weight: 800;
             background: linear-gradient(135deg, #FF6B35, #F7C948);
             -webkit-background-clip: text;
@@ -164,7 +154,6 @@
         .cal-unit {
             font-size: 14px;
             color: rgba(255,255,255,0.4);
-            font-weight: 500;
         }
 
         .macros {
@@ -177,181 +166,137 @@
         .macro-item {
             background: rgba(255,255,255,0.06);
             border-radius: 12px;
-            padding: 10px;
+            padding: 10px 8px;
             text-align: center;
-            border: 1px solid rgba(255,255,255,0.04);
         }
 
         .macro-label {
             font-size: 10px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.8px;
             color: rgba(255,255,255,0.35);
             margin-bottom: 4px;
         }
 
-        .macro-value {
-            font-size: 18px;
-            font-weight: 700;
-        }
-
+        .macro-value { font-size: 18px; font-weight: 700; }
         .macro-value.protein { color: #4ECDC4; }
         .macro-value.fat { color: #FFE66D; }
         .macro-value.carbs { color: #FF6B6B; }
-
-        .macro-unit {
-            font-size: 11px;
-            font-weight: 400;
-            opacity: 0.5;
-        }
+        .macro-unit { font-size: 11px; font-weight: 400; opacity: 0.5; }
 
         .ingredients-section {
-            padding-top: 14px;
+            padding-top: 12px;
             border-top: 1px solid rgba(255,255,255,0.06);
         }
 
         .ingredients-label {
             font-size: 10px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.8px;
             color: rgba(255,255,255,0.3);
-            margin-bottom: 6px;
+            margin-bottom: 5px;
         }
 
         .ingredients-text {
             font-size: 13px;
-            color: rgba(255,255,255,0.6);
+            color: rgba(255,255,255,0.55);
             line-height: 1.5;
             font-weight: 300;
         }
 
-        /* ===== НИЖНЕЕ МЕНЮ ===== */
+        /* Нижнее меню */
         .bottom-sheet {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
             z-index: 300;
-            padding-bottom: max(16px, env(safe-area-inset-bottom));
+            padding-bottom: max(12px, env(safe-area-inset-bottom));
             transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .bottom-sheet.hidden {
-            transform: translateY(100%);
-        }
+        .bottom-sheet.hidden { transform: translateY(110%); }
 
         .sheet-handle {
             width: 36px;
             height: 4px;
-            background: rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.25);
             border-radius: 2px;
-            margin: 0 auto 10px;
+            margin: 0 auto 8px;
         }
 
         .menu-scroll {
             display: flex;
             gap: 10px;
             overflow-x: auto;
-            padding: 0 16px 8px;
+            padding: 0 16px 6px;
             scroll-snap-type: x mandatory;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: none;
         }
 
-        .menu-scroll::-webkit-scrollbar {
-            display: none;
-        }
+        .menu-scroll::-webkit-scrollbar { display: none; }
 
         .dish-card {
             flex-shrink: 0;
             scroll-snap-align: start;
-            width: 100px;
-            background: rgba(20, 20, 30, 0.8);
+            width: 90px;
+            background: rgba(15, 15, 25, 0.8);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border-radius: 18px;
-            padding: 14px 10px;
+            border-radius: 16px;
+            padding: 12px 8px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.25s ease;
             border: 2px solid transparent;
-            position: relative;
-            overflow: hidden;
         }
 
-        .dish-card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 16px;
-            background: linear-gradient(135deg, rgba(255,107,53,0.15), rgba(247,201,72,0.15));
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .dish-card:active {
-            transform: scale(0.95);
-        }
+        .dish-card:active { transform: scale(0.93); }
 
         .dish-card.active {
-            border-color: rgba(255,107,53,0.6);
-            box-shadow: 0 0 25px rgba(255,107,53,0.2);
-        }
-
-        .dish-card.active::before {
-            opacity: 1;
+            border-color: rgba(255,107,53,0.5);
+            background: rgba(255,107,53,0.15);
+            box-shadow: 0 0 20px rgba(255,107,53,0.15);
         }
 
         .card-emoji {
-            font-size: 30px;
-            margin-bottom: 6px;
+            font-size: 28px;
+            margin-bottom: 4px;
             display: block;
-            position: relative;
-            z-index: 1;
         }
 
         .card-name {
             font-size: 11px;
-            color: rgba(255,255,255,0.7);
+            color: rgba(255,255,255,0.65);
             font-weight: 500;
-            position: relative;
-            z-index: 1;
-            line-height: 1.3;
+            line-height: 1.2;
         }
 
         .card-cal {
-            font-size: 10px;
-            color: rgba(255,255,255,0.35);
-            margin-top: 4px;
-            position: relative;
-            z-index: 1;
+            font-size: 9px;
+            color: rgba(255,255,255,0.3);
+            margin-top: 3px;
         }
 
-        .dish-card.active .card-name {
-            color: white;
-        }
+        .dish-card.active .card-name { color: white; }
+        .dish-card.active .card-cal { color: rgba(255,180,100,0.7); }
 
-        .dish-card.active .card-cal {
-            color: rgba(255,200,100,0.7);
-        }
-
-        /* ===== ПОДСКАЗКА ===== */
+        /* Подсказка */
         .hint-toast {
             position: fixed;
-            bottom: 200px;
+            bottom: 190px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 250;
-            background: rgba(0,0,0,0.75);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            color: rgba(255,255,255,0.8);
-            font-size: 13px;
-            padding: 10px 20px;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(15px);
+            color: rgba(255,255,255,0.75);
+            font-size: 12px;
+            padding: 8px 18px;
             border-radius: 50px;
             white-space: nowrap;
-            font-weight: 400;
-            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.5s ease;
             border: 1px solid rgba(255,255,255,0.08);
         }
 
@@ -361,22 +306,22 @@
             pointer-events: none;
         }
 
-        /* ===== ПУЛЬСИРУЮЩИЙ ИНДИКАТОР КАМЕРЫ ===== */
-        .cam-indicator {
+        /* Камера-индикатор */
+        .cam-badge {
             position: fixed;
-            top: calc(max(12px, env(safe-area-inset-top)) + 6px);
+            top: calc(max(12px, env(safe-area-inset-top)) + 5px);
             left: 50%;
             transform: translateX(-50%);
             z-index: 300;
             display: flex;
             align-items: center;
-            gap: 6px;
-            background: rgba(0,0,0,0.5);
+            gap: 5px;
+            background: rgba(0,0,0,0.45);
             backdrop-filter: blur(10px);
-            padding: 5px 12px;
+            padding: 4px 10px;
             border-radius: 20px;
-            font-size: 11px;
-            color: rgba(255,255,255,0.5);
+            font-size: 10px;
+            color: rgba(255,255,255,0.45);
         }
 
         .cam-dot {
@@ -388,123 +333,35 @@
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(74,222,128,0.4); }
-            50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(74,222,128,0); }
-        }
-
-        /* ===== АНИМАЦИЯ ЗАГРУЗКИ ===== */
-        .splash {
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-            background: #0a0a0f;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.6s ease;
-        }
-
-        .splash.hide {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .splash-icon {
-            font-size: 56px;
-            margin-bottom: 20px;
-            animation: float 2s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-12px); }
-        }
-
-        .splash-title {
-            color: white;
-            font-size: 24px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            margin-bottom: 8px;
-        }
-
-        .splash-sub {
-            color: rgba(255,255,255,0.4);
-            font-size: 14px;
-            font-weight: 400;
-        }
-
-        .splash-loader {
-            margin-top: 30px;
-            width: 120px;
-            height: 3px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .splash-loader-bar {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, #FF6B35, #F7C948);
-            border-radius: 3px;
-            animation: load 2s ease-in-out forwards;
-        }
-
-        @keyframes load {
-            0% { width: 0%; }
-            100% { width: 100%; }
-        }
-
-        /* AR Scene */
-        #arScene {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
         }
     </style>
 </head>
 <body>
 
-    <!-- СПЛЭШ ЭКРАН -->
-    <div class="splash" id="splash">
-        <div class="splash-icon">🍽️</div>
-        <div class="splash-title">AR Menu</div>
-        <div class="splash-sub">Загрузка камеры...</div>
-        <div class="splash-loader">
-            <div class="splash-loader-bar"></div>
-        </div>
-    </div>
-
-    <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
+    <!-- Верхняя панель -->
     <div class="top-bar">
         <div class="logo">
             <div class="logo-icon">🍽</div>
             <span>AR Menu</span>
         </div>
         <div class="top-actions">
-            <button class="icon-btn" id="toggleInfoBtn" title="Информация">ℹ️</button>
-            <button class="icon-btn" id="pinBtn" title="Закрепить">📌</button>
-            <button class="icon-btn" id="toggleMenuBtn" title="Меню">☰</button>
+            <button class="icon-btn" id="toggleInfoBtn">ℹ️</button>
+            <button class="icon-btn" id="pinBtn">📌</button>
+            <button class="icon-btn" id="toggleMenuBtn">☰</button>
         </div>
     </div>
 
-    <!-- ИНДИКАТОР КАМЕРЫ -->
-    <div class="cam-indicator">
+    <div class="cam-badge">
         <div class="cam-dot"></div>
-        <span>Камера активна • Hiro маркер</span>
+        <span>Наведи камеру на Hiro-маркер</span>
     </div>
 
-    <!-- ИНФО-КАРТОЧКА -->
+    <!-- Инфо-карточка -->
     <div class="info-card" id="infoCard">
         <div class="dish-header">
-            <div>
-                <div class="dish-name" id="dishName">Чизбургер</div>
-            </div>
+            <div class="dish-name" id="dishName">Чизбургер</div>
             <div class="dish-emoji" id="dishEmoji">🍔</div>
         </div>
         <div class="calories-row">
@@ -531,14 +388,340 @@
         </div>
     </div>
 
-    <!-- ПОДСКАЗКА -->
-    <div class="hint-toast" id="hintToast">👆 Свайпай по экрану — перемещай блюдо</div>
+    <div class="hint-toast" id="hintToast">☝️ Свайпай — перемещай блюдо</div>
 
-    <!-- НИЖНЕЕ МЕНЮ -->
+    <!-- Нижнее меню -->
     <div class="bottom-sheet" id="bottomSheet">
         <div class="sheet-handle"></div>
         <div class="menu-scroll" id="menuScroll">
             <div class="dish-card active" data-dish="burger">
                 <span class="card-emoji">🍔</span>
                 <div class="card-name">Бургер</div>
-                <div class="card-cal">520 
+                <div class="card-cal">520 ккал</div>
+            </div>
+            <div class="dish-card" data-dish="pizza">
+                <span class="card-emoji">🍕</span>
+                <div class="card-name">Пицца</div>
+                <div class="card-cal">680 ккал</div>
+            </div>
+            <div class="dish-card" data-dish="sushi">
+                <span class="card-emoji">🍣</span>
+                <div class="card-name">Роллы</div>
+                <div class="card-cal">380 ккал</div>
+            </div>
+            <div class="dish-card" data-dish="salad">
+                <span class="card-emoji">🥗</span>
+                <div class="card-name">Цезарь</div>
+                <div class="card-cal">410 ккал</div>
+            </div>
+            <div class="dish-card" data-dish="pasta">
+                <span class="card-emoji">🍝</span>
+                <div class="card-name">Карбонара</div>
+                <div class="card-cal">720 ккал</div>
+            </div>
+            <div class="dish-card" data-dish="steak">
+                <span class="card-emoji">🥩</span>
+                <div class="card-name">Стейк</div>
+                <div class="card-cal">890 ккал</div>
+            </div>
+            <div class="dish-card" data-dish="bowl">
+                <span class="card-emoji">🥣</span>
+                <div class="card-name">Йогурт</div>
+                <div class="card-cal">320 ккал</div>
+            </div>
+            <div class="dish-card" data-dish="coffee">
+                <span class="card-emoji">☕</span>
+                <div class="card-name">Латте</div>
+                <div class="card-cal">180 ккал</div>
+            </div>
+            <div class="dish-card" data-dish="donut">
+                <span class="card-emoji">🍩</span>
+                <div class="card-name">Пончик</div>
+                <div class="card-cal">350 ккал</div>
+            </div>
+            <div class="dish-card" data-dish="icecream">
+                <span class="card-emoji">🍦</span>
+                <div class="card-name">Пломбир</div>
+                <div class="card-cal">220 ккал</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AR СЦЕНА -->
+    <a-scene id="arScene"
+             embedded
+             arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
+             vr-mode-ui="enabled: false"
+             renderer="logarithmicDepthBuffer: true; precision: medium;"
+             loading-screen="enabled: false">
+
+        <a-marker id="hiroMarker" preset="hiro" smooth="true" smooth-count="5" smooth-tolerance="0.01" smooth-threshold="2">
+            <a-entity id="dishModel" position="0 0 0" rotation="0 0 0">
+
+                <!-- Бургер -->
+                <a-entity id="burgerGroup" visible="true" position="0 0.3 0" scale="0.8 0.8 0.8">
+                    <a-cylinder color="#D4842A" radius="0.45" height="0.1" position="0 0 0"></a-cylinder>
+                    <a-cylinder color="#5C3317" radius="0.43" height="0.09" position="0 0.08 0"></a-cylinder>
+                    <a-box color="#FFD700" width="0.6" height="0.03" depth="0.6" position="0 0.14 0" rotation="0 15 0"></a-box>
+                    <a-cylinder color="#32CD32" radius="0.44" height="0.04" position="0 0.17 0"></a-cylinder>
+                    <a-cylinder color="#FF4444" radius="0.42" height="0.03" position="0 0.2 0"></a-cylinder>
+                    <a-sphere color="#D4842A" radius="0.45" theta-start="0" theta-length="90" position="0 0.23 0" scale="1 0.55 1"></a-sphere>
+                    <a-sphere color="#FFF8DC" radius="0.02" position="0.1 0.45 0.1"></a-sphere>
+                    <a-sphere color="#FFF8DC" radius="0.02" position="-0.1 0.44 0.15"></a-sphere>
+                    <a-sphere color="#FFF8DC" radius="0.02" position="0.15 0.43 -0.05"></a-sphere>
+                    <a-sphere color="#FFF8DC" radius="0.015" position="-0.05 0.46 -0.1"></a-sphere>
+                </a-entity>
+
+                <!-- Пицца -->
+                <a-entity id="pizzaGroup" visible="false" position="0 0.15 0" scale="0.8 0.8 0.8">
+                    <a-cylinder color="#E8B960" radius="0.55" height="0.06" position="0 0 0"></a-cylinder>
+                    <a-cylinder color="#CC3300" radius="0.5" height="0.02" position="0 0.04 0"></a-cylinder>
+                    <a-sphere color="#FFFDD0" radius="0.08" position="0.15 0.06 0.1"></a-sphere>
+                    <a-sphere color="#FFFDD0" radius="0.07" position="-0.2 0.06 0.05"></a-sphere>
+                    <a-sphere color="#FFFDD0" radius="0.09" position="0.05 0.06 -0.18"></a-sphere>
+                    <a-sphere color="#FFFDD0" radius="0.06" position="-0.1 0.06 -0.12"></a-sphere>
+                    <a-cylinder color="#228B22" radius="0.02" height="0.02" position="0.22 0.07 -0.1"></a-cylinder>
+                    <a-cylinder color="#228B22" radius="0.02" height="0.02" position="-0.15 0.07 0.2"></a-cylinder>
+                </a-entity>
+
+                <!-- Суши -->
+                <a-entity id="sushiGroup" visible="false" position="0 0.1 0" scale="0.8 0.8 0.8">
+                    <a-box color="#8B7355" width="0.7" height="0.03" depth="0.5" position="0 0 0"></a-box>
+                    <a-cylinder color="#1a1a1a" radius="0.12" height="0.1" position="-0.18 0.07 -0.1"></a-cylinder>
+                    <a-cylinder color="#FFF" radius="0.1" height="0.005" position="-0.18 0.125 -0.1"></a-cylinder>
+                    <a-cylinder color="#FF6347" radius="0.06" height="0.005" position="-0.18 0.13 -0.1"></a-cylinder>
+                    <a-cylinder color="#1a1a1a" radius="0.12" height="0.1" position="0.15 0.07 -0.1"></a-cylinder>
+                    <a-cylinder color="#FFF" radius="0.1" height="0.005" position="0.15 0.125 -0.1"></a-cylinder>
+                    <a-cylinder color="#FF6347" radius="0.06" height="0.005" position="0.15 0.13 -0.1"></a-cylinder>
+                    <a-cylinder color="#1a1a1a" radius="0.12" height="0.1" position="0 0.07 0.12"></a-cylinder>
+                    <a-cylinder color="#FFF" radius="0.1" height="0.005" position="0 0.125 0.12"></a-cylinder>
+                    <a-cylinder color="#32CD32" radius="0.05" height="0.005" position="0 0.13 0.12"></a-cylinder>
+                </a-entity>
+
+                <!-- Салат -->
+                <a-entity id="saladGroup" visible="false" position="0 0.15 0" scale="0.8 0.8 0.8">
+                    <a-cylinder color="#E8E8E8" radius="0.45" height="0.1" position="0 0 0"></a-cylinder>
+                    <a-sphere color="#228B22" radius="0.12" position="0.1 0.1 0.1" scale="1.2 0.6 1"></a-sphere>
+                    <a-sphere color="#32CD32" radius="0.1" position="-0.15 0.09 0.05" scale="1.3 0.5 1"></a-sphere>
+                    <a-sphere color="#2E8B57" radius="0.11" position="0.05 0.11 -0.15" scale="1 0.5 1.2"></a-sphere>
+                    <a-box color="#F4A460" width="0.3" height="0.05" depth="0.08" position="-0.05 0.16 0" rotation="10 30 5"></a-box>
+                    <a-sphere color="#FFD700" radius="0.03" position="0.2 0.13 0.05"></a-sphere>
+                </a-entity>
+
+                <!-- Паста -->
+                <a-entity id="pastaGroup" visible="false" position="0 0.15 0" scale="0.8 0.8 0.8">
+                    <a-cylinder color="#E8E8E8" radius="0.4" height="0.12" position="0 0 0"></a-cylinder>
+                    <a-torus color="#F5DEB3" radius="0.25" radius-tubular="0.035" position="0 0.1 0" rotation="5 0 10"></a-torus>
+                    <a-torus color="#F5DEB3" radius="0.22" radius-tubular="0.03" position="0 0.13 0" rotation="-8 45 5"></a-torus>
+                    <a-torus color="#F5DEB3" radius="0.2" radius-tubular="0.03" position="0 0.16 0" rotation="3 90 -5"></a-torus>
+                    <a-sphere color="#CC3300" radius="0.1" position="0 0.18 0" scale="1.5 0.4 1.5"></a-sphere>
+                </a-entity>
+
+                <!-- Стейк -->
+                <a-entity id="steakGroup" visible="false" position="0 0.1 0" scale="0.8 0.8 0.8">
+                    <a-cylinder color="#F0F0F0" radius="0.5" height="0.03" position="0 0 0"></a-cylinder>
+                    <a-box color="#5C2018" width="0.45" height="0.08" depth="0.35" position="0 0.06 0" rotation="0 10 0"></a-box>
+                    <a-sphere color="#228B22" radius="0.05" position="0.28 0.06 0.1" scale="1 0.5 1"></a-sphere>
+                    <a-sphere color="#228B22" radius="0.04" position="0.25 0.06 -0.05" scale="1 0.5 1"></a-sphere>
+                </a-entity>
+
+                <!-- Йогурт -->
+                <a-entity id="bowlGroup" visible="false" position="0 0.15 0" scale="0.8 0.8 0.8">
+                    <a-cylinder color="#E8E8E8" radius="0.35" height="0.18" position="0 0 0"></a-cylinder>
+                    <a-cylinder color="#FFFAF0" radius="0.32" height="0.04" position="0 0.09 0"></a-cylinder>
+                    <a-sphere color="#E74C3C" radius="0.025" position="0.1 0.12 0.05"></a-sphere>
+                    <a-sphere color="#8E44AD" radius="0.02" position="-0.08 0.12 0.08"></a-sphere>
+                    <a-sphere color="#E74C3C" radius="0.02" position="0.05 0.12 -0.1"></a-sphere>
+                    <a-box color="#D4A460" width="0.25" height="0.015" depth="0.06" position="0 0.11 0" rotation="0 -20 0"></a-box>
+                </a-entity>
+
+                <!-- Кофе -->
+                <a-entity id="coffeeGroup" visible="false" position="0 0.15 0" scale="0.8 0.8 0.8">
+                    <a-cylinder color="#FFFFFF" radius="0.28" height="0.02" position="0 0 0"></a-cylinder>
+                    <a-cylinder color="#FFFFFF" radius="0.16" height="0.25" position="0 0.14 0"></a-cylinder>
+                    <a-cylinder color="#4A2C0A" radius="0.14" height="0.02" position="0 0.26 0"></a-cylinder>
+                    <a-sphere color="#F5F0E8" radius="0.13" position="0 0.27 0" scale="1 0.3 1"></a-sphere>
+                    <a-torus color="#FFFFFF" radius="0.07" radius-tubular="0.012" position="0.2 0.16 0" rotation="0 0 90" theta-length="180"></a-torus>
+                </a-entity>
+
+                <!-- Пончик -->
+                <a-entity id="donutGroup" visible="false" position="0 0.15 0" scale="0.8 0.8 0.8">
+                    <a-torus color="#D4842A" radius="0.22" radius-tubular="0.09" position="0 0.09 0"></a-torus>
+                    <a-torus color="#FF69B4" radius="0.22" radius-tubular="0.07" position="0 0.13 0" theta-length="200" rotation="0 30 0"></a-torus>
+                    <a-sphere color="#FFD700" radius="0.015" position="0.18 0.18 0.08"></a-sphere>
+                    <a-sphere color="#FF4500" radius="0.015" position="0.12 0.18 -0.14"></a-sphere>
+                    <a-sphere color="#00CED1" radius="0.015" position="-0.08 0.18 0.18"></a-sphere>
+                    <a-sphere color="#FFD700" radius="0.015" position="-0.18 0.18 -0.04"></a-sphere>
+                </a-entity>
+
+                <!-- Мороженое -->
+                <a-entity id="icecreamGroup" visible="false" position="0 0.15 0" scale="0.8 0.8 0.8">
+                    <a-cone color="#D4A460" radius-bottom="0.02" radius-top="0.14" height="0.28" position="0 0.14 0"></a-cone>
+                    <a-sphere color="#FFF8DC" radius="0.13" position="0 0.32 0"></a-sphere>
+                    <a-sphere color="#FFC0CB" radius="0.11" position="0.08 0.43 0"></a-sphere>
+                    <a-sphere color="#8B4513" radius="0.1" position="-0.06 0.45 0.04"></a-sphere>
+                    <a-sphere color="#CC0000" radius="0.035" position="0 0.54 0"></a-sphere>
+                    <a-cylinder color="#228B22" radius="0.005" height="0.07" position="0.01 0.58 0" rotation="0 0 15"></a-cylinder>
+                </a-entity>
+
+            </a-entity>
+
+            <!-- Подпись на маркере -->
+            <a-entity position="0 -0.15 0" rotation="-90 0 0">
+                <a-plane color="#000" opacity="0.65" width="1.1" height="0.22"></a-plane>
+                <a-text id="dishText" value="Чизбургер • 520 ккал" position="0 0 0.01" color="white"
+                        align="center" width="1.6"></a-text>
+            </a-entity>
+        </a-marker>
+
+        <a-entity camera></a-entity>
+    </a-scene>
+
+    <script>
+        // === ДАННЫЕ ===
+        const dishes = {
+            burger: { name: "Чизбургер", emoji: "🍔", calories: 520, protein: 28, fat: 26, carbs: 42, ingredients: "Говяжья котлета 150г, сыр чеддер, салат айсберг, помидор, маринованные огурцы, соус BBQ, булка с кунжутом", modelId: "burgerGroup" },
+            pizza: { name: "Пицца Маргарита", emoji: "🍕", calories: 680, protein: 24, fat: 28, carbs: 75, ingredients: "Томатный соус, моцарелла, свежие томаты, базилик, оливковое масло, тесто на закваске", modelId: "pizzaGroup" },
+            sushi: { name: "Роллы Филадельфия", emoji: "🍣", calories: 380, protein: 18, fat: 16, carbs: 42, ingredients: "Рис, норвежский лосось, сливочный сыр, огурец, авокадо, нори, кунжут", modelId: "sushiGroup" },
+            salad: { name: "Цезарь с курицей", emoji: "🥗", calories: 410, protein: 32, fat: 24, carbs: 18, ingredients: "Куриное филе, салат романо, пармезан, сухарики, соус Цезарь, перепелиное яйцо", modelId: "saladGroup" },
+            pasta: { name: "Паста Карбонара", emoji: "🍝", calories: 720, protein: 26, fat: 34, carbs: 72, ingredients: "Спагетти, гуанчиале, яйцо, пекорино романо, чёрный перец, пармезан", modelId: "pastaGroup" },
+            steak: { name: "Стейк Рибай", emoji: "🥩", calories: 890, protein: 52, fat: 68, carbs: 2, ingredients: "Мраморная говядина 250г, розмарин, тимьян, чеснок, сливочное масло, трюфельный соус", modelId: "steakGroup" },
+            bowl: { name: "Йогурт с гранолой", emoji: "🥣", calories: 320, protein: 15, fat: 12, carbs: 38, ingredients: "Натуральный йогурт 5%, гранола, свежие ягоды, мёд, семена чиа", modelId: "bowlGroup" },
+            coffee: { name: "Латте", emoji: "☕", calories: 180, protein: 8, fat: 9, carbs: 14, ingredients: "Эспрессо, вспененное молоко 3.2%, сироп (по желанию), корица", modelId: "coffeeGroup" },
+            donut: { name: "Пончик глазированный", emoji: "🍩", calories: 350, protein: 5, fat: 18, carbs: 44, ingredients: "Дрожжевое тесто, шоколадная глазурь, кондитерская посыпка", modelId: "donutGroup" },
+            icecream: { name: "Пломбир ванильный", emoji: "🍦", calories: 220, protein: 4, fat: 14, carbs: 20, ingredients: "Натуральные сливки 33%, яичный желток, сахар, ванильный стручок", modelId: "icecreamGroup" }
+        };
+
+        // === ЭЛЕМЕНТЫ ===
+        const infoCard = document.getElementById('infoCard');
+        const dishNameEl = document.getElementById('dishName');
+        const dishEmojiEl = document.getElementById('dishEmoji');
+        const calNumberEl = document.getElementById('calNumber');
+        const proteinValEl = document.getElementById('proteinVal');
+        const fatValEl = document.getElementById('fatVal');
+        const carbsValEl = document.getElementById('carbsVal');
+        const ingredientsTextEl = document.getElementById('ingredientsText');
+        const dishTextEl = document.getElementById('dishText');
+        const bottomSheet = document.getElementById('bottomSheet');
+        const toggleMenuBtn = document.getElementById('toggleMenuBtn');
+        const toggleInfoBtn = document.getElementById('toggleInfoBtn');
+        const pinBtn = document.getElementById('pinBtn');
+        const hintToast = document.getElementById('hintToast');
+
+        let currentDish = 'burger';
+        let menuVisible = true;
+        let infoVisible = true;
+
+        // Скрыть подсказку
+        setTimeout(() => { hintToast.classList.add('fade'); }, 5000);
+
+        // === ВЫБОР БЛЮДА ===
+        function selectDish(dishId) {
+            if (!dishes[dishId]) return;
+            currentDish = dishId;
+            const d = dishes[dishId];
+
+            dishNameEl.textContent = d.name;
+            dishEmojiEl.textContent = d.emoji;
+            calNumberEl.textContent = d.calories;
+            proteinValEl.innerHTML = d.protein + '<span class="macro-unit">г</span>';
+            fatValEl.innerHTML = d.fat + '<span class="macro-unit">г</span>';
+            carbsValEl.innerHTML = d.carbs + '<span class="macro-unit">г</span>';
+            ingredientsTextEl.textContent = d.ingredients;
+            dishTextEl.setAttribute('value', d.name + ' • ' + d.calories + ' ккал');
+
+            // Переключить 3D модели
+            Object.values(dishes).forEach(dish => {
+                const el = document.getElementById(dish.modelId);
+                if (el) el.setAttribute('visible', 'false');
+            });
+            const active = document.getElementById(d.modelId);
+            if (active) active.setAttribute('visible', 'true');
+
+            // Подсветить карточку
+            document.querySelectorAll('.dish-card').forEach(c => {
+                c.classList.toggle('active', c.dataset.dish === dishId);
+            });
+        }
+
+        // === КНОПКИ ===
+        toggleMenuBtn.addEventListener('click', () => {
+            menuVisible = !menuVisible;
+            bottomSheet.classList.toggle('hidden', !menuVisible);
+            toggleMenuBtn.classList.toggle('active', !menuVisible);
+        });
+
+        toggleInfoBtn.addEventListener('click', () => {
+            infoVisible = !infoVisible;
+            infoCard.classList.toggle('collapsed', !infoVisible);
+            toggleInfoBtn.classList.toggle('active', !infoVisible);
+        });
+
+        pinBtn.addEventListener('click', () => {
+            pinBtn.classList.toggle('active');
+            hintToast.textContent = pinBtn.classList.contains('active') ? '✅ Закреплено' : '📌 Откреплено';
+            hintToast.classList.remove('fade');
+            setTimeout(() => hintToast.classList.add('fade'), 2000);
+        });
+
+        // === КАРТОЧКИ ===
+        document.querySelectorAll('.dish-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                e.stopPropagation();
+                selectDish(card.dataset.dish);
+            });
+        });
+
+        // === ПЕРЕМЕЩЕНИЕ ТАЧЕМ ===
+        let isDragging = false;
+        let lastX = 0, lastY = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            if (e.target.closest('.bottom-sheet') || e.target.closest('.top-bar') || e.target.closest('.info-card')) return;
+            isDragging = true;
+            lastX = e.touches[0].clientX;
+            lastY = e.touches[0].clientY;
+        }, { passive: true });
+
+        document.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            const t = e.touches[0];
+            const dx = (t.clientX - lastX) * 0.004;
+            const dy = (t.clientY - lastY) * 0.004;
+            const m = document.getElementById('dishModel');
+            if (m) {
+                const p = m.getAttribute('position');
+                m.setAttribute('position', { x: p.x + dx, y: p.y, z: p.z + dy });
+            }
+            lastX = t.clientX;
+            lastY = t.clientY;
+        }, { passive: true });
+
+        document.addEventListener('touchend', () => { isDragging = false; });
+
+        // === АВТО-ВРАЩЕНИЕ ===
+        (function () {
+            const model = document.getElementById('dishModel');
+            if (!model) return;
+            function rotate() {
+                if (model.object3D) {
+                    model.object3D.rotation.y += 0.008;
+                }
+                requestAnimationFrame(rotate);
+            }
+            // Ждём загрузки сцены
+            const scene = document.getElementById('arScene');
+            if (scene) {
+                scene.addEventListener('loaded', () => {
+                    rotate();
+                });
+                // Fallback
+                setTimeout(rotate, 3000);
+            }
+        })();
+
+        // === ИНИТ ===
+        selectDish('burger');
+    </script>
+</body>
+</html>
