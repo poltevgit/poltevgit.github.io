@@ -219,6 +219,7 @@
             -webkit-backdrop-filter: blur(20px); border-radius: 14px;
             padding: 10px 6px; text-align: center; cursor: pointer;
             transition: all 0.25s; border: 2px solid transparent;
+            position: relative;
         }
         .dish-card:active { transform: scale(0.93); }
         .dish-card.active {
@@ -237,7 +238,6 @@
             color: #000; font-size: 7px; font-weight: 800;
             padding: 1px 4px; border-radius: 6px;
         }
-        .dish-card { position: relative; }
 
         .confetti {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -253,7 +253,6 @@
             100% { opacity: 0; transform: translateY(100vh) rotate(720deg) scale(0.5); }
         }
 
-        /* Индикатор размера/поворота */
         .gesture-hint {
             position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%); z-index: 350;
@@ -262,8 +261,60 @@
             font-size: 14px; font-weight: 600;
             opacity: 0; pointer-events: none;
             transition: opacity 0.3s;
+            text-align: center;
         }
         .gesture-hint.show { opacity: 1; }
+
+        /* === БАННЕР ПОИСКА МАРКЕРА === */
+        .scan-banner {
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); z-index: 280;
+            background: rgba(12,12,22,0.92); backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            color: white; padding: 26px 30px; border-radius: 22px;
+            text-align: center; max-width: 320px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
+        }
+        .scan-banner.hidden {
+            opacity: 0; pointer-events: none; transform: translate(-50%, -50%) scale(0.9);
+        }
+        .scan-icon {
+            font-size: 56px; margin-bottom: 12px;
+            animation: scanPulse 2s ease-in-out infinite;
+        }
+        @keyframes scanPulse {
+            0%,100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.15); opacity: 0.7; }
+        }
+        .scan-title {
+            font-size: 18px; font-weight: 700; margin-bottom: 6px;
+            background: linear-gradient(135deg, #FF6B35, #F7C948);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .scan-sub {
+            font-size: 13px; color: rgba(255,255,255,0.6);
+            line-height: 1.4;
+        }
+
+        /* === ЗНАЧОК "ЗАКРЕПЛЕНО" === */
+        .pinned-badge {
+            position: fixed; bottom: 130px; left: 50%;
+            transform: translateX(-50%); z-index: 290;
+            background: linear-gradient(135deg, #4ECDC4, #44B09E);
+            color: #000; padding: 6px 14px; border-radius: 20px;
+            font-size: 11px; font-weight: 700;
+            display: flex; align-items: center; gap: 6px;
+            box-shadow: 0 4px 15px rgba(78,205,196,0.4);
+            animation: pinPop 0.4s ease-out;
+        }
+        @keyframes pinPop {
+            0% { transform: translateX(-50%) scale(0.5); opacity: 0; }
+            100% { transform: translateX(-50%) scale(1); opacity: 1; }
+        }
+        .pinned-badge.hidden { display: none; }
     </style>
 </head>
 <body>
@@ -284,6 +335,19 @@
         <span>🐰</span>
         <span id="friendshipLabel">Новый друг</span>
         <span class="hearts" id="heartsDisplay">♡♡♡♡♡</span>
+    </div>
+
+    <!-- БАННЕР ПОИСКА МАРКЕРА -->
+    <div class="scan-banner" id="scanBanner">
+        <div class="scan-icon">🎯</div>
+        <div class="scan-title">Наведи на Hiro-маркер</div>
+        <div class="scan-sub">Достаточно одного раза — потом модель закрепится автоматически</div>
+    </div>
+
+    <!-- ЗНАЧОК "ЗАКРЕПЛЕНО" -->
+    <div class="pinned-badge hidden" id="pinnedBadge">
+        <span>📌</span> <span>Модель закреплена</span>
+        <button id="unpinBtn" style="background:rgba(0,0,0,0.2);border:none;color:#000;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;margin-left:4px;cursor:pointer;">Сбросить</button>
     </div>
 
     <div class="info-card collapsed" id="infoCard">
@@ -367,16 +431,17 @@
              renderer="logarithmicDepthBuffer: true; precision: medium; alpha: true; antialias: true;"
              loading-screen="enabled: false">
 
-        <!-- СВЕТ для GLB моделей -->
         <a-entity light="type: ambient; intensity: 1.0; color: #ffffff"></a-entity>
         <a-entity light="type: directional; intensity: 0.8; color: #ffffff" position="1 2 1"></a-entity>
         <a-entity light="type: directional; intensity: 0.4; color: #ffeecc" position="-1 1 -1"></a-entity>
 
-        <a-marker id="hiroMarker" preset="hiro" smooth="true" smooth-count="5">
-            <!-- Контейнер для модели — управляется JS-ом -->
+        <!-- Маркер (нужен только для первоначальной фиксации) -->
+        <a-marker id="hiroMarker" preset="hiro" smooth="true" smooth-count="5"></a-marker>
+
+        <!-- ЗАКРЕПЛЁННАЯ группа моделей в МИРЕ (не привязана к маркеру) -->
+        <a-entity id="worldRoot" visible="false">
             <a-entity id="dishModel" position="0 0 0" rotation="0 0 0" scale="1 1 1">
 
-                <!-- GLB МОДЕЛИ -->
                 <a-entity id="burgerGroup" visible="true"
                     gltf-model="url(./burger.glb)"
                     position="0 0 0" rotation="-90 0 0" scale="0.15 0.15 0.15"></a-entity>
@@ -401,7 +466,6 @@
                     gltf-model="url(./latte.glb)"
                     position="0 0 0" rotation="-90 0 0" scale="0.15 0.15 0.15"></a-entity>
 
-                <!-- Примитивы для тех, у кого нет GLB -->
                 <a-entity id="pastaGroup" visible="false" position="0 0.12 0" scale="0.7 0.7 0.7">
                     <a-cylinder color="#E8E8E8" radius="0.4" height="0.12" position="0 0 0"></a-cylinder>
                     <a-torus color="#F5DEB3" radius="0.25" radius-tubular="0.035" position="0 0.1 0" rotation="5 0 10"></a-torus>
@@ -438,7 +502,7 @@
                 <a-plane color="#000" opacity="0.6" width="1" height="0.2"></a-plane>
                 <a-text id="dishText" value="Чизбургер • 520 ккал" position="0 0 0.01" color="white" align="center" width="1.5"></a-text>
             </a-entity>
-        </a-marker>
+        </a-entity>
 
         <a-entity camera></a-entity>
     </a-scene>
@@ -446,16 +510,16 @@
     <script>
         // ===== ДАННЫЕ =====
         const dishes = {
-            burger:   { name:"Чизбургер",         emoji:"🍔", calories:520, protein:28, fat:26, carbs:42, ingredients:"Говяжья котлета 150г, сыр чеддер, салат, помидор, огурцы, соус BBQ, булка с кунжутом", modelId:"burgerGroup", baseScale: 0.15 },
-            pizza:    { name:"Пицца Маргарита",   emoji:"🍕", calories:680, protein:24, fat:28, carbs:75, ingredients:"Томатный соус, моцарелла, томаты, базилик, оливковое масло, тесто",           modelId:"pizzaGroup",  baseScale: 0.15 },
-            sushi:    { name:"Роллы Филадельфия", emoji:"🍣", calories:380, protein:18, fat:16, carbs:42, ingredients:"Рис, лосось, сливочный сыр, огурец, авокадо, нори, кунжут",                  modelId:"sushiGroup",  baseScale: 0.15 },
-            salad:    { name:"Цезарь с курицей",  emoji:"🥗", calories:410, protein:32, fat:24, carbs:18, ingredients:"Куриное филе, салат романо, пармезан, сухарики, соус Цезарь",                modelId:"saladGroup",  baseScale: 0.15 },
-            pasta:    { name:"Паста Карбонара",   emoji:"🍝", calories:720, protein:26, fat:34, carbs:72, ingredients:"Спагетти, гуанчиале, яйцо, пекорино, чёрный перец",                          modelId:"pastaGroup",  baseScale: 1 },
-            steak:    { name:"Стейк Рибай",       emoji:"🥩", calories:890, protein:52, fat:68, carbs:2,  ingredients:"Мраморная говядина 250г, розмарин, тимьян, чеснок, масло",                   modelId:"steakGroup",  baseScale: 0.15 },
-            bowl:     { name:"Йогурт с гранолой", emoji:"🥣", calories:320, protein:15, fat:12, carbs:38, ingredients:"Йогурт 5%, гранола, ягоды, мёд, чиа",                                        modelId:"bowlGroup",   baseScale: 1 },
-            coffee:   { name:"Латте",             emoji:"☕", calories:180, protein:8,  fat:9,  carbs:14, ingredients:"Эспрессо, молоко 3.2%, сироп, корица",                                       modelId:"coffeeGroup", baseScale: 0.15 },
-            donut:    { name:"Пончик",            emoji:"🍩", calories:350, protein:5,  fat:18, carbs:44, ingredients:"Дрожжевое тесто, шоколадная глазурь, посыпка",                              modelId:"donutGroup",  baseScale: 1 },
-            icecream: { name:"Пломбир",           emoji:"🍦", calories:220, protein:4,  fat:14, carbs:20, ingredients:"Сливки 33%, желток, сахар, ваниль",                                          modelId:"icecreamGroup", baseScale: 1 }
+            burger:   { name:"Чизбургер",         emoji:"🍔", calories:520, protein:28, fat:26, carbs:42, ingredients:"Говяжья котлета 150г, сыр чеддер, салат, помидор, огурцы, соус BBQ, булка с кунжутом", modelId:"burgerGroup" },
+            pizza:    { name:"Пицца Маргарита",   emoji:"🍕", calories:680, protein:24, fat:28, carbs:75, ingredients:"Томатный соус, моцарелла, томаты, базилик, оливковое масло, тесто",           modelId:"pizzaGroup" },
+            sushi:    { name:"Роллы Филадельфия", emoji:"🍣", calories:380, protein:18, fat:16, carbs:42, ingredients:"Рис, лосось, сливочный сыр, огурец, авокадо, нори, кунжут",                  modelId:"sushiGroup" },
+            salad:    { name:"Цезарь с курицей",  emoji:"🥗", calories:410, protein:32, fat:24, carbs:18, ingredients:"Куриное филе, салат романо, пармезан, сухарики, соус Цезарь",                modelId:"saladGroup" },
+            pasta:    { name:"Паста Карбонара",   emoji:"🍝", calories:720, protein:26, fat:34, carbs:72, ingredients:"Спагетти, гуанчиале, яйцо, пекорино, чёрный перец",                          modelId:"pastaGroup" },
+            steak:    { name:"Стейк Рибай",       emoji:"🥩", calories:890, protein:52, fat:68, carbs:2,  ingredients:"Мраморная говядина 250г, розмарин, тимьян, чеснок, масло",                   modelId:"steakGroup" },
+            bowl:     { name:"Йогурт с гранолой", emoji:"🥣", calories:320, protein:15, fat:12, carbs:38, ingredients:"Йогурт 5%, гранола, ягоды, мёд, чиа",                                        modelId:"bowlGroup" },
+            coffee:   { name:"Латте",             emoji:"☕", calories:180, protein:8,  fat:9,  carbs:14, ingredients:"Эспрессо, молоко 3.2%, сироп, корица",                                       modelId:"coffeeGroup" },
+            donut:    { name:"Пончик",            emoji:"🍩", calories:350, protein:5,  fat:18, carbs:44, ingredients:"Дрожжевое тесто, шоколадная глазурь, посыпка",                              modelId:"donutGroup" },
+            icecream: { name:"Пломбир",           emoji:"🍦", calories:220, protein:4,  fat:14, carbs:20, ingredients:"Сливки 33%, желток, сахар, ваниль",                                          modelId:"icecreamGroup" }
         };
 
         const dishKeys = Object.keys(dishes);
@@ -520,15 +584,21 @@
         const modelControls = document.getElementById('modelControls');
         const gestureHint = document.getElementById('gestureHint');
         const dishModelEl = document.getElementById('dishModel');
+        const worldRoot = document.getElementById('worldRoot');
+        const hiroMarker = document.getElementById('hiroMarker');
+        const scanBanner = document.getElementById('scanBanner');
+        const pinnedBadge = document.getElementById('pinnedBadge');
 
         let currentDish = 'burger';
         let menuVisible = true;
         let infoVisible = false;
 
-        // ===== СОСТОЯНИЕ ТРАНСФОРМА =====
-        let userScale = 1.0;        // множитель к baseScale
-        let userRotationY = 0;      // дополнительный поворот по Y
-        let autoRotate = true;      // авто-вращение
+        let userScale = 1.0;
+        let userRotationY = 0;
+        let autoRotate = true;
+
+        // ===== ФИКСАЦИЯ МОДЕЛИ =====
+        let isPinned = false; // зафиксирована ли модель в мире
 
         function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
@@ -574,7 +644,7 @@
             gestureHint.textContent = text;
             gestureHint.classList.add('show');
             clearTimeout(gestureHint._t);
-            gestureHint._t = setTimeout(() => gestureHint.classList.remove('show'), 1000);
+            gestureHint._t = setTimeout(() => gestureHint.classList.remove('show'), 1200);
         }
 
         function setBunnyText(text, actions) {
@@ -681,7 +751,6 @@
             }, 25000);
         }
 
-        // ===== ВЫБОР БЛЮДА =====
         function selectDish(dishId) {
             if (!dishes[dishId]) return;
             currentDish = dishId;
@@ -707,13 +776,11 @@
                 c.classList.toggle('active', c.dataset.dish === dishId);
             });
 
-            // сброс юзерских трансформов при выборе нового блюда
             userScale = 1.0;
             userRotationY = 0;
             applyTransforms();
         }
 
-        // ===== ПРИМЕНЕНИЕ ТРАНСФОРМОВ =====
         function applyTransforms() {
             const s = userScale;
             dishModelEl.setAttribute('scale', `${s} ${s} ${s}`);
@@ -748,7 +815,6 @@
             showHint('🔄 Сброс');
         };
 
-        // ===== КНОПКИ ВЕРХА =====
         document.getElementById('toggleMenuBtn').addEventListener('click', () => {
             menuVisible = !menuVisible;
             bottomSheet.classList.toggle('hidden', !menuVisible);
@@ -783,7 +849,7 @@
             });
         });
 
-        // ===== ЖЕСТЫ: ПЕРЕМЕЩЕНИЕ + ЩИПОК (МАСШТАБ) + ПОВОРОТ =====
+        // ===== ЖЕСТЫ =====
         let isDragging = false;
         let lastX = 0, lastY = 0;
         let initialPinchDist = 0;
@@ -796,7 +862,8 @@
             return target.closest('.bottom-sheet') || target.closest('.top-bar') ||
                    target.closest('.info-card') || target.closest('.bunny-dialog') ||
                    target.closest('.friendship-bar') || target.closest('.model-controls') ||
-                   target.closest('.gesture-hint');
+                   target.closest('.gesture-hint') || target.closest('.scan-banner') ||
+                   target.closest('.pinned-badge');
         }
 
         function getPinchDist(t1, t2) {
@@ -810,7 +877,6 @@
 
         document.addEventListener('touchstart', (e) => {
             if (isUITouch(e.target)) return;
-
             if (e.touches.length === 2) {
                 isPinching = true;
                 isDragging = false;
@@ -828,19 +894,13 @@
 
         document.addEventListener('touchmove', (e) => {
             if (isUITouch(e.target)) return;
-
             if (isPinching && e.touches.length === 2) {
                 const newDist = getPinchDist(e.touches[0], e.touches[1]);
                 const newAngle = getPinchAngle(e.touches[0], e.touches[1]);
-
-                // Масштаб
                 const scaleFactor = newDist / initialPinchDist;
                 userScale = Math.max(0.2, Math.min(5, initialPinchScale * scaleFactor));
-
-                // Поворот
                 const angleDelta = newAngle - initialPinchAngle;
                 userRotationY = initialUserRotY + angleDelta;
-
                 applyTransforms();
                 showHint(`📏 ${Math.round(userScale*100)}%  •  ↻ ${Math.round(userRotationY)}°`);
             } else if (isDragging && e.touches.length === 1) {
@@ -861,11 +921,11 @@
             }
         });
 
-        // ===== АВТО-ВРАЩЕНИЕ + ПРИМЕНЕНИЕ ПОВОРОТА =====
+        // ===== АВТО-ВРАЩЕНИЕ =====
         (function () {
             function rotate() {
                 if (dishModelEl && dishModelEl.object3D) {
-                    if (autoRotate) userRotationY += 0.5; // градусы за кадр
+                    if (autoRotate) userRotationY += 0.5;
                     dishModelEl.object3D.rotation.y = userRotationY * Math.PI / 180;
                 }
                 requestAnimationFrame(rotate);
@@ -873,12 +933,72 @@
             setTimeout(rotate, 1000);
         })();
 
+        // ===== ГЛАВНОЕ: ЛОВИМ МАРКЕР ОДИН РАЗ И ЗАКРЕПЛЯЕМ =====
+        function pinModelToWorld() {
+            if (isPinned) return;
+
+            // Берём мировые координаты маркера в этот момент
+            const markerObj = hiroMarker.object3D;
+            const worldPos = new THREE.Vector3();
+            const worldQuat = new THREE.Quaternion();
+            const worldScale = new THREE.Vector3();
+
+            markerObj.updateMatrixWorld(true);
+            markerObj.matrixWorld.decompose(worldPos, worldQuat, worldScale);
+
+            // Применяем эти координаты к worldRoot (он живёт ВНЕ маркера)
+            worldRoot.object3D.position.copy(worldPos);
+            worldRoot.object3D.quaternion.copy(worldQuat);
+            // масштаб оставляем 1, чтобы наши собственные scale внутри работали корректно
+            worldRoot.object3D.scale.set(1, 1, 1);
+
+            worldRoot.setAttribute('visible', 'true');
+            isPinned = true;
+
+            // Прячем баннер, показываем значок «закреплено»
+            scanBanner.classList.add('hidden');
+            pinnedBadge.classList.remove('hidden');
+
+            showHint('📌 Модель закреплена!');
+
+            if (bunnyVisible) {
+                showReaction('✨');
+                setBunnyText("Ура! 🎉 Я <span class='highlight'>зафиксировал</span> блюдо в твоём мире! Теперь можешь убрать маркер и крутить как хочешь! 🌟", [
+                    { label:'🎲 Предложи!', style:'primary', action:()=>bunnyAction('suggest') },
+                    { label:'🧩 Квиз!', style:'pink', action:()=>bunnyAction('quiz') }
+                ]);
+            }
+        }
+
+        function unpinModel() {
+            isPinned = false;
+            worldRoot.setAttribute('visible', 'false');
+            pinnedBadge.classList.add('hidden');
+            scanBanner.classList.remove('hidden');
+            showHint('🔄 Снова наведи на маркер');
+        }
+
+        document.getElementById('unpinBtn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            unpinModel();
+        });
+
+        // Слушаем появление маркера
+        hiroMarker.addEventListener('markerFound', () => {
+            if (!isPinned) {
+                // Маленькая задержка чтобы маркер успел стабилизироваться
+                setTimeout(() => {
+                    if (!isPinned) pinModelToWorld();
+                }, 400);
+            }
+        });
+
         // ===== СТАРТ =====
         selectDish('burger');
         updateFriendship();
         resetIdleTimer();
         setTimeout(() => bunnyAction('hi'), 1500);
-        setTimeout(() => showHint('👌 Щипок — масштаб и поворот'), 2500);
+        setTimeout(() => showHint('👌 Щипок — масштаб'), 2500);
     </script>
 </body>
 </html>
