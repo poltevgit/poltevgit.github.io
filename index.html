@@ -459,18 +459,14 @@
             <a-entity id="dishModel" position="0 0 0" rotation="0 0 0">
 
                 <!-- Бургер -->
-                <a-entity id="burgerGroup" visible="true" position="0 0.3 0" scale="0.8 0.8 0.8">
-                    <a-cylinder color="#D4842A" radius="0.45" height="0.1" position="0 0 0"></a-cylinder>
-                    <a-cylinder color="#5C3317" radius="0.43" height="0.09" position="0 0.08 0"></a-cylinder>
-                    <a-box color="#FFD700" width="0.6" height="0.03" depth="0.6" position="0 0.14 0" rotation="0 15 0"></a-box>
-                    <a-cylinder color="#32CD32" radius="0.44" height="0.04" position="0 0.17 0"></a-cylinder>
-                    <a-cylinder color="#FF4444" radius="0.42" height="0.03" position="0 0.2 0"></a-cylinder>
-                    <a-sphere color="#D4842A" radius="0.45" theta-start="0" theta-length="90" position="0 0.23 0" scale="1 0.55 1"></a-sphere>
-                    <a-sphere color="#FFF8DC" radius="0.02" position="0.1 0.45 0.1"></a-sphere>
-                    <a-sphere color="#FFF8DC" radius="0.02" position="-0.1 0.44 0.15"></a-sphere>
-                    <a-sphere color="#FFF8DC" radius="0.02" position="0.15 0.43 -0.05"></a-sphere>
-                    <a-sphere color="#FFF8DC" radius="0.015" position="-0.05 0.46 -0.1"></a-sphere>
-                </a-entity>
+               <a-entity
+    id="burgerGroup"
+    visible="true"
+    gltf-model="url(./burger.glb)"
+    position="0 0.15 0"
+    rotation="0 180 0"
+    scale="0.25 0.25 0.25">
+</a-entity>
 
                 <!-- Пицца -->
                 <a-entity id="pizzaGroup" visible="false" position="0 0.15 0" scale="0.8 0.8 0.8">
