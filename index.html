@@ -21,39 +21,68 @@
             overflow: hidden; background: #000;
         }
 
-        /* === БАННЕР ПОИСКА МАРКЕРА === */
-        .scan-banner {
-            position: fixed; top: 50%; left: 50%;
-            transform: translate(-50%, -50%); z-index: 280;
-            background: rgba(20, 25, 40, 0.92);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            color: white; padding: 30px 32px; border-radius: 24px;
-            text-align: center; max-width: 320px;
+        /* === ВЕРХНЯЯ ПАНЕЛЬ === */
+        .top-bar {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 290;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 14px;
+            padding-top: max(12px, env(safe-area-inset-top));
+            pointer-events: none;
+        }
+        .top-bar > * { pointer-events: auto; }
+
+        /* Подсказка маркера */
+        .marker-hint {
+            background: rgba(20, 25, 40, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            color: white; padding: 8px 14px; border-radius: 50px;
+            font-size: 12px; font-weight: 600;
+            display: flex; align-items: center; gap: 6px;
             border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-            transition: all 0.5s cubic-bezier(0.16,1,0.3,1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: all 0.4s ease;
         }
-        .scan-banner.hidden {
+        .marker-hint.hidden {
             opacity: 0; pointer-events: none;
-            transform: translate(-50%, -50%) scale(0.85);
+            transform: translateY(-10px);
         }
-        .scan-icon {
-            font-size: 64px; margin-bottom: 14px;
-            animation: scanPulse 2s ease-in-out infinite;
+        .marker-hint .pulse-dot {
+            width: 7px; height: 7px; border-radius: 50%;
+            background: #4ADE80;
+            animation: pulseDot 1.5s ease-in-out infinite;
         }
-        @keyframes scanPulse {
-            0%,100% { transform: scale(1); }
-            50% { transform: scale(1.15); }
+        @keyframes pulseDot {
+            0%,100% { opacity: 1; box-shadow: 0 0 0 0 rgba(74,222,128,0.6); }
+            50% { opacity: 0.6; box-shadow: 0 0 0 6px rgba(74,222,128,0); }
         }
-        .scan-title {
-            font-size: 20px; font-weight: 800; margin-bottom: 8px;
-            color: #FFD86B;
+        .marker-hint.found {
+            background: rgba(76, 175, 80, 0.9);
         }
-        .scan-sub {
-            font-size: 14px; color: rgba(255,255,255,0.7);
-            line-height: 1.5; font-weight: 400;
+
+        /* Кнопки справа */
+        .top-actions {
+            display: flex; gap: 8px;
         }
+        .top-btn {
+            background: rgba(20, 25, 40, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            color: white; border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 50px; padding: 8px 14px;
+            font-size: 13px; font-weight: 700;
+            cursor: pointer; font-family: inherit;
+            display: flex; align-items: center; gap: 6px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .top-btn:active { transform: scale(0.92); }
+        .top-btn.active {
+            background: linear-gradient(135deg, #FF6B35, #FFA94D);
+            border-color: transparent;
+            box-shadow: 0 4px 20px rgba(255,107,53,0.5);
+        }
+        .top-btn .icon { font-size: 16px; }
 
         /* === ЗАЙКА === */
         .bunny-stage {
@@ -62,6 +91,10 @@
             padding-bottom: max(20px, env(safe-area-inset-bottom));
             display: flex; flex-direction: column; align-items: center;
             pointer-events: none;
+            transition: transform 0.5s cubic-bezier(0.16,1,0.3,1), opacity 0.4s ease;
+        }
+        .bunny-stage.hidden {
+            transform: translateY(120%); opacity: 0; pointer-events: none;
         }
 
         .bunny-character {
@@ -76,13 +109,11 @@
             transition: transform 0.3s ease;
         }
         .bunny-character:active { transform: scale(0.95); }
-
         @keyframes breathe {
             0%,100% { transform: scale(1) translateY(0); }
             50% { transform: scale(1.03) translateY(-3px); }
         }
 
-        /* Ушки зайки */
         .bunny-ear {
             position: absolute; top: -42px;
             width: 22px; height: 55px;
@@ -91,8 +122,7 @@
             box-shadow: inset -3px 0 5px rgba(0,0,0,0.05);
         }
         .bunny-ear::after {
-            content: '';
-            position: absolute; top: 8px; left: 50%;
+            content: ''; position: absolute; top: 8px; left: 50%;
             transform: translateX(-50%);
             width: 10px; height: 32px;
             background: #FFB6C1;
@@ -115,14 +145,11 @@
             95% { transform: rotate(25deg); }
         }
 
-        /* Лицо зайки */
         .bunny-face {
             position: absolute; top: 30px; left: 0; right: 0;
             display: flex; flex-direction: column; align-items: center;
         }
-        .bunny-eyes {
-            display: flex; gap: 18px; margin-bottom: 8px;
-        }
+        .bunny-eyes { display: flex; gap: 18px; margin-bottom: 8px; }
         .bunny-eye {
             width: 12px; height: 16px;
             background: #2c1810;
@@ -131,8 +158,7 @@
             animation: blink 5s ease-in-out infinite;
         }
         .bunny-eye::after {
-            content: ''; position: absolute;
-            top: 3px; left: 3px;
+            content: ''; position: absolute; top: 3px; left: 3px;
             width: 4px; height: 4px;
             background: white; border-radius: 50%;
         }
@@ -152,8 +178,6 @@
             border-radius: 0 0 50% 50%;
             transition: all 0.3s ease;
         }
-
-        /* Состояния (эмоции) */
         .bunny-character.happy .bunny-mouth {
             width: 22px; height: 12px;
             border-bottom: 3px solid #2c1810;
@@ -165,9 +189,7 @@
             margin-top: 6px;
         }
         .bunny-character.love .bunny-eye {
-            background: transparent;
-            color: #FF1744;
-            font-size: 18px;
+            background: transparent; color: #FF1744; font-size: 18px;
         }
         .bunny-character.love .bunny-eye::before {
             content: '♥'; position: absolute; top: -4px; left: -3px;
@@ -175,27 +197,21 @@
         .bunny-character.love .bunny-eye::after { display: none; }
         .bunny-character.sleepy .bunny-eye {
             height: 3px; border-radius: 0;
-            background: #2c1810;
-            margin-top: 6px;
+            background: #2c1810; margin-top: 6px;
         }
         .bunny-character.sleepy .bunny-eye::after { display: none; }
-        .bunny-character.thinking {
-            animation: thinking 2s ease-in-out infinite;
-        }
+        .bunny-character.thinking { animation: thinking 2s ease-in-out infinite; }
         @keyframes thinking {
             0%,100% { transform: rotate(0deg); }
             25% { transform: rotate(-3deg); }
             75% { transform: rotate(3deg); }
         }
-        .bunny-character.excited {
-            animation: excited 0.5s ease-in-out infinite;
-        }
+        .bunny-character.excited { animation: excited 0.5s ease-in-out infinite; }
         @keyframes excited {
             0%,100% { transform: translateY(0); }
             50% { transform: translateY(-15px); }
         }
 
-        /* Щёчки */
         .bunny-cheek {
             position: absolute; top: 52px;
             width: 14px; height: 10px;
@@ -205,7 +221,6 @@
         .bunny-cheek.left { left: 12px; }
         .bunny-cheek.right { right: 12px; }
 
-        /* === ДИАЛОГОВОЕ ОБЛАКО === */
         .bunny-bubble {
             background: white;
             border-radius: 28px;
@@ -222,8 +237,7 @@
             100% { opacity: 1; transform: translateY(0) scale(1); }
         }
         .bunny-bubble::before {
-            content: '';
-            position: absolute; top: -14px; left: 50%;
+            content: ''; position: absolute; top: -14px; left: 50%;
             transform: translateX(-50%);
             width: 0; height: 0;
             border-left: 14px solid transparent;
@@ -231,15 +245,13 @@
             border-bottom: 14px solid #FFE5B4;
         }
         .bunny-bubble::after {
-            content: '';
-            position: absolute; top: -10px; left: 50%;
+            content: ''; position: absolute; top: -10px; left: 50%;
             transform: translateX(-50%);
             width: 0; height: 0;
             border-left: 12px solid transparent;
             border-right: 12px solid transparent;
             border-bottom: 12px solid white;
         }
-
         .bunny-text {
             font-size: 17px; font-weight: 600;
             color: #2c1810; line-height: 1.4;
@@ -247,20 +259,19 @@
             min-height: 50px;
             display: flex; align-items: center; justify-content: center;
         }
-        .bunny-text .highlight {
-            color: #FF6B35; font-weight: 800;
+        .bunny-text .highlight { color: #FF6B35; font-weight: 800; }
+        .bunny-text .ar-tip {
+            display: block; font-size: 13px;
+            color: #888; font-weight: 500; margin-top: 8px;
         }
-
         .bunny-actions {
             display: flex; gap: 10px; flex-wrap: wrap;
             justify-content: center;
         }
-
         .bunny-btn {
             border: none; border-radius: 50px;
             padding: 12px 22px; font-size: 15px;
-            font-weight: 700; cursor: pointer;
-            font-family: inherit;
+            font-weight: 700; cursor: pointer; font-family: inherit;
             transition: all 0.2s ease;
             display: flex; align-items: center; gap: 6px;
         }
@@ -276,21 +287,175 @@
             box-shadow: 0 4px 15px rgba(76,175,80,0.4);
         }
         .bunny-btn.secondary {
-            background: #F5F5F5;
-            color: #555;
+            background: #F5F5F5; color: #555;
             border: 2px solid #E0E0E0;
         }
         .bunny-btn.choice {
             flex: 1; min-width: 130px;
-            background: white;
-            color: #2c1810;
+            background: white; color: #2c1810;
             border: 2px solid #FFE5B4;
-            font-size: 14px;
-            padding: 14px 16px;
+            font-size: 14px; padding: 14px 16px;
         }
         .bunny-btn.choice:hover, .bunny-btn.choice:active {
-            background: #FFF8E1;
-            border-color: #FF6B35;
+            background: #FFF8E1; border-color: #FF6B35;
+        }
+
+        /* === МЕНЮ === */
+        .menu-panel {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 280;
+            background: linear-gradient(180deg, rgba(15,20,35,0.6) 0%, rgba(15,20,35,0.95) 50%);
+            padding-top: calc(max(12px, env(safe-area-inset-top)) + 60px);
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16,1,0.3,1);
+        }
+        .menu-panel.hidden {
+            opacity: 0; pointer-events: none;
+            transform: translateY(20px);
+        }
+        .menu-header {
+            padding: 0 20px 16px;
+            text-align: center;
+        }
+        .menu-title {
+            font-size: 28px; font-weight: 900;
+            background: linear-gradient(135deg, #FFD86B, #FFA94D);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 4px;
+        }
+        .menu-subtitle {
+            font-size: 13px; color: rgba(255,255,255,0.6);
+            font-weight: 500;
+        }
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 0 16px;
+        }
+        .menu-card {
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 18px 14px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .menu-card::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(255,107,53,0.15), rgba(255,216,107,0.1));
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .menu-card:active {
+            transform: scale(0.96);
+            border-color: rgba(255,107,53,0.6);
+        }
+        .menu-card:active::before { opacity: 1; }
+
+        .menu-card-emoji {
+            font-size: 44px;
+            display: block;
+            text-align: center;
+            margin-bottom: 10px;
+            position: relative;
+            filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));
+        }
+        .menu-card-name {
+            font-size: 14px; font-weight: 800;
+            color: white;
+            text-align: center;
+            margin-bottom: 4px;
+            position: relative;
+        }
+        .menu-card-tags {
+            display: flex; justify-content: center;
+            gap: 4px; flex-wrap: wrap;
+            position: relative;
+        }
+        .menu-tag {
+            font-size: 9px; font-weight: 700;
+            padding: 2px 7px; border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.7);
+        }
+        .menu-tag.hot { background: rgba(255,107,53,0.2); color: #FFA94D; }
+        .menu-tag.cold { background: rgba(78,205,196,0.2); color: #4ECDC4; }
+        .menu-tag.heavy { background: rgba(255,107,107,0.2); color: #FF6B6B; }
+        .menu-tag.light { background: rgba(168,230,207,0.2); color: #A8E6CF; }
+        .menu-tag.sweet { background: rgba(255,182,193,0.2); color: #FFB6C1; }
+
+        .menu-3d-badge {
+            position: absolute; top: 8px; right: 8px;
+            background: linear-gradient(135deg, #4ECDC4, #44B09E);
+            color: #000; font-size: 9px; font-weight: 900;
+            padding: 2px 6px; border-radius: 8px;
+            z-index: 1;
+        }
+
+        .menu-footer {
+            text-align: center;
+            padding: 20px 16px 0;
+            color: rgba(255,255,255,0.4);
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .menu-footer .bunny-link {
+            color: #FFD86B;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* === ПРОСМОТР БЛЮДА (когда выбрал из меню) === */
+        .dish-viewer {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            z-index: 295;
+            background: linear-gradient(180deg, transparent 0%, rgba(15,20,35,0.95) 40%);
+            padding: 80px 20px 20px;
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
+            transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
+        }
+        .dish-viewer.hidden {
+            transform: translateY(100%); pointer-events: none;
+        }
+        .dish-card-big {
+            background: white;
+            border-radius: 24px;
+            padding: 20px;
+            max-width: 440px; margin: 0 auto;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .dish-card-header {
+            display: flex; align-items: center; gap: 14px;
+            margin-bottom: 12px;
+        }
+        .dish-card-emoji {
+            font-size: 48px;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+        }
+        .dish-card-info { flex: 1; }
+        .dish-card-name {
+            font-size: 20px; font-weight: 800;
+            color: #2c1810;
+            margin-bottom: 2px;
+        }
+        .dish-card-desc {
+            font-size: 13px; color: #888;
+            font-weight: 500;
+        }
+        .dish-card-actions {
+            display: flex; gap: 8px;
+        }
+        .dish-card-actions .bunny-btn {
+            flex: 1;
+            justify-content: center;
         }
 
         /* === КОНФЕТТИ === */
@@ -307,38 +472,60 @@
             0% { opacity: 1; transform: translateY(0) rotate(0deg); }
             100% { opacity: 0; transform: translateY(110vh) rotate(720deg); }
         }
-
-        /* === КНОПКА СБРОСА (маленькая, ненавязчивая) === */
-        .reset-btn {
-            position: fixed; top: 16px; right: 16px;
-            top: max(16px, env(safe-area-inset-top));
-            z-index: 290;
-            width: 40px; height: 40px;
-            border-radius: 50%; border: none;
-            background: rgba(0,0,0,0.4);
-            backdrop-filter: blur(10px);
-            color: white; font-size: 16px;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            opacity: 0.6;
-        }
-        .reset-btn:active { transform: scale(0.9); opacity: 1; }
     </style>
 </head>
 <body>
 
-    <!-- Баннер поиска маркера -->
-    <div class="scan-banner" id="scanBanner">
-        <div class="scan-icon">🎯</div>
-        <div class="scan-title">Найди мой маркер!</div>
-        <div class="scan-sub">Наведи камеру на Hiro-маркер — и я появлюсь со вкусняшкой! 🐰</div>
+    <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
+    <div class="top-bar">
+        <div class="marker-hint" id="markerHint">
+            <span class="pulse-dot"></span>
+            <span id="markerHintText">Наведи на маркер для 3D 🎯</span>
+        </div>
+        <div class="top-actions">
+            <button class="top-btn" id="modeToggleBtn">
+                <span class="icon">🍽️</span>
+                <span id="modeBtnLabel">Меню</span>
+            </button>
+        </div>
     </div>
 
-    <!-- Кнопка сброса -->
-    <button class="reset-btn" id="resetBtn" title="Начать заново">🔄</button>
+    <!-- РЕЖИМ МЕНЮ -->
+    <div class="menu-panel hidden" id="menuPanel">
+        <div class="menu-header">
+            <div class="menu-title">Наше меню</div>
+            <div class="menu-subtitle">Тапни на блюдо, чтобы посмотреть</div>
+        </div>
+        <div class="menu-grid" id="menuGrid"></div>
+        <div class="menu-footer">
+            Не знаешь что выбрать?<br>
+            <span class="bunny-link" onclick="switchToBunny()">🐰 Спроси у зайки →</span>
+        </div>
+    </div>
+
+    <!-- ПРОСМОТР БЛЮДА -->
+    <div class="dish-viewer hidden" id="dishViewer">
+        <div class="dish-card-big">
+            <div class="dish-card-header">
+                <div class="dish-card-emoji" id="viewerEmoji">🍔</div>
+                <div class="dish-card-info">
+                    <div class="dish-card-name" id="viewerName">Чизбургер</div>
+                    <div class="dish-card-desc" id="viewerDesc">сочный и вкусный</div>
+                </div>
+            </div>
+            <div class="dish-card-actions">
+                <button class="bunny-btn success" onclick="orderFromViewer()">
+                    ✅ Заказать
+                </button>
+                <button class="bunny-btn secondary" onclick="closeDishViewer()">
+                    ✕ Закрыть
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- ЗАЙКА -->
-    <div class="bunny-stage" id="bunnyStage" style="display:none;">
+    <div class="bunny-stage" id="bunnyStage">
         <div class="bunny-character happy" id="bunnyChar">
             <div class="bunny-ear left"></div>
             <div class="bunny-ear right"></div>
@@ -406,84 +593,74 @@
 
     <script>
         // ===== ДАННЫЕ БЛЮД =====
-        // Каждое блюдо помечено тегами для подбора
         const dishes = {
             burger: {
                 name: "Чизбургер", emoji: "🍔", modelId: "burgerGroup",
-                temp: "hot", fill: "heavy", sweet: false,
+                temp: "hot", fill: "heavy", sweet: false, has3d: true,
                 phrase: "сочный, сытный, с расплавленным сыром"
             },
             pizza: {
                 name: "Пицца Маргарита", emoji: "🍕", modelId: "pizzaGroup",
-                temp: "hot", fill: "heavy", sweet: false,
+                temp: "hot", fill: "heavy", sweet: false, has3d: true,
                 phrase: "ароматная, с базиликом и моцареллой"
             },
             sushi: {
                 name: "Роллы Филадельфия", emoji: "🍣", modelId: "sushiGroup",
-                temp: "cold", fill: "light", sweet: false,
+                temp: "cold", fill: "light", sweet: false, has3d: true,
                 phrase: "нежные, с лососем и сливочным сыром"
             },
             salad: {
                 name: "Цезарь с курицей", emoji: "🥗", modelId: "saladGroup",
-                temp: "cold", fill: "light", sweet: false,
+                temp: "cold", fill: "light", sweet: false, has3d: true,
                 phrase: "свежий, хрустящий, с курочкой"
             },
             steak: {
                 name: "Стейк Рибай", emoji: "🥩", modelId: "steakGroup",
-                temp: "hot", fill: "heavy", sweet: false,
+                temp: "hot", fill: "heavy", sweet: false, has3d: true,
                 phrase: "мраморный, прожаренный до совершенства"
             },
             coffee: {
                 name: "Латте", emoji: "☕", modelId: "coffeeGroup",
-                temp: "hot", fill: "light", sweet: true,
+                temp: "hot", fill: "light", sweet: true, has3d: true,
                 phrase: "тёплый, кремовый, бодрящий"
             }
         };
 
-        // ===== СЛУЧАЙНЫЕ ФРАЗЫ =====
+        // ===== ФРАЗЫ =====
         const greetings = [
             "Привет! 🌿 Я <span class='highlight'>Зайка-гурман</span>!",
             "Ой, привет-привет! 🥕 Рад тебя видеть!",
-            "Здравствуй, друг! 💚 Я тут как раз искал, кого угостить!"
+            "Здравствуй, друг! 💚 Я искал, кого угостить!"
         ];
-
         const intros = [
             "Не знаешь, чего хочешь? 🤔 Давай я угадаю!",
             "Я отлично подбираю блюда! Сыграем? 🎲",
             "Хочешь, найду тебе идеальное блюдо? ✨"
         ];
-
         const thinkingPhrases = [
             "Хм-м... дай-ка подумать... 🤔",
             "Так-так, что бы тебе подошло... 🐰",
             "Сейчас-сейчас, прикину... 💭"
         ];
-
         const presentPhrases = [
             "Я думаю, тебе нужен <span class='highlight'>{name}</span> {emoji}!",
             "О! Точно — <span class='highlight'>{name}</span> {emoji}!",
             "Вот оно! <span class='highlight'>{name}</span> {emoji} — то, что надо!",
             "Идеально подойдёт <span class='highlight'>{name}</span> {emoji}!"
         ];
-
         const happyPhrases = [
             "Урааа! 🎉 Приятного аппетита, друг! 🍴",
             "Я так рад! 💚 Кушай на здоровье!",
             "Отличный выбор! 🌟 Наслаждайся!"
         ];
 
-        const sadPhrases = [
-            "Эх... 🥺 Ну ничего, давай ещё попробуем!",
-            "Ой... 😔 Хорошо, поищем другое!",
-            "Жаль... 🥺 Но я не сдаюсь!"
-        ];
-
         // ===== СОСТОЯНИЕ =====
+        let mode = 'bunny'; // 'bunny' или 'menu'
         let isPinned = false;
-        let bunnyVisible = false;
         let userAnswers = { temp: null, fill: null, sweet: null };
         let suggestedDishes = [];
         let currentSuggestion = null;
+        let viewerDish = null;
         let idleTimer = null;
 
         // ===== ЭЛЕМЕНТЫ =====
@@ -491,7 +668,16 @@
         const bunnyChar = document.getElementById('bunnyChar');
         const bunnyText = document.getElementById('bunnyText');
         const bunnyActions = document.getElementById('bunnyActions');
-        const scanBanner = document.getElementById('scanBanner');
+        const menuPanel = document.getElementById('menuPanel');
+        const menuGrid = document.getElementById('menuGrid');
+        const dishViewer = document.getElementById('dishViewer');
+        const viewerEmoji = document.getElementById('viewerEmoji');
+        const viewerName = document.getElementById('viewerName');
+        const viewerDesc = document.getElementById('viewerDesc');
+        const markerHint = document.getElementById('markerHint');
+        const markerHintText = document.getElementById('markerHintText');
+        const modeToggleBtn = document.getElementById('modeToggleBtn');
+        const modeBtnLabel = document.getElementById('modeBtnLabel');
         const worldRoot = document.getElementById('worldRoot');
         const hiroMarker = document.getElementById('hiroMarker');
         const dishModelEl = document.getElementById('dishModel');
@@ -556,11 +742,93 @@
         function resetIdleTimer() {
             clearTimeout(idleTimer);
             idleTimer = setTimeout(() => {
-                if (bunnyVisible) goSleepy();
-            }, 30000);
+                if (mode === 'bunny') goSleepy();
+            }, 45000);
         }
 
-        // ===== СЦЕНАРИИ ДИАЛОГА =====
+        // ===== ПЕРЕКЛЮЧЕНИЕ РЕЖИМОВ =====
+        function switchToMenu() {
+            mode = 'menu';
+            bunnyStage.classList.add('hidden');
+            menuPanel.classList.remove('hidden');
+            modeBtnLabel.textContent = 'Зайка';
+            modeToggleBtn.querySelector('.icon').textContent = '🐰';
+            modeToggleBtn.classList.add('active');
+            closeDishViewer();
+        }
+
+        function switchToBunny() {
+            mode = 'bunny';
+            menuPanel.classList.add('hidden');
+            bunnyStage.classList.remove('hidden');
+            modeBtnLabel.textContent = 'Меню';
+            modeToggleBtn.querySelector('.icon').textContent = '🍽️';
+            modeToggleBtn.classList.remove('active');
+            closeDishViewer();
+        }
+
+        modeToggleBtn.addEventListener('click', () => {
+            if (mode === 'bunny') switchToMenu();
+            else switchToBunny();
+        });
+
+        // ===== РЕНДЕР МЕНЮ =====
+        function renderMenu() {
+            menuGrid.innerHTML = '';
+            Object.entries(dishes).forEach(([key, d]) => {
+                const card = document.createElement('div');
+                card.className = 'menu-card';
+                card.innerHTML = `
+                    ${d.has3d ? '<span class="menu-3d-badge">3D</span>' : ''}
+                    <span class="menu-card-emoji">${d.emoji}</span>
+                    <div class="menu-card-name">${d.name}</div>
+                    <div class="menu-card-tags">
+                        <span class="menu-tag ${d.temp}">${d.temp === 'hot' ? '🔥 горячее' : '❄️ холодное'}</span>
+                        <span class="menu-tag ${d.fill}">${d.fill === 'heavy' ? '💪 сытно' : '🪶 легко'}</span>
+                        ${d.sweet ? '<span class="menu-tag sweet">🍯 сладкое</span>' : ''}
+                    </div>
+                `;
+                card.onclick = () => openDishViewer(key);
+                menuGrid.appendChild(card);
+            });
+        }
+
+        // ===== ПРОСМОТР БЛЮДА ИЗ МЕНЮ =====
+        function openDishViewer(dishId) {
+            viewerDish = dishId;
+            const d = dishes[dishId];
+            viewerEmoji.textContent = d.emoji;
+            viewerName.textContent = d.name;
+            viewerDesc.textContent = d.phrase;
+            dishViewer.classList.remove('hidden');
+
+            // Показываем 3D-модель
+            showDish(dishId);
+        }
+
+        function closeDishViewer() {
+            dishViewer.classList.add('hidden');
+            viewerDish = null;
+            if (mode === 'menu') hideDish();
+        }
+
+        function orderFromViewer() {
+            const d = dishes[viewerDish];
+            showConfetti();
+            closeDishViewer();
+            // Переключаемся к зайке, чтобы он порадовался
+            switchToBunny();
+            setBunny(
+                pick(happyPhrases) + "<br><br>🍴 Твой <span class='highlight'>" + d.name + "</span> уже в пути!",
+                [
+                    { label: '🍽️ Назад в меню', style: 'secondary', action: switchToMenu },
+                    { label: '🎲 Сыграть!', style: 'primary', action: startGame }
+                ],
+                'love'
+            );
+        }
+
+        // ===== ИГРА С ЗАЙКОЙ =====
         function startGame() {
             userAnswers = { temp: null, fill: null, sweet: null };
             suggestedDishes = [];
@@ -571,7 +839,7 @@
                 pick(greetings) + "<br>" + pick(intros),
                 [
                     { label: '🎲 Давай!', style: 'primary', action: askTemp },
-                    { label: '🐾 Привет, зайка!', style: 'secondary', action: petBunny }
+                    { label: '🍽️ Посмотреть меню', style: 'secondary', action: switchToMenu }
                 ],
                 'happy'
             );
@@ -611,11 +879,9 @@
         }
 
         function findDish() {
-            // Показываем "думаю..."
             setBunny(pick(thinkingPhrases), [], 'thinking');
 
             setTimeout(() => {
-                // Подбираем подходящие блюда
                 const allKeys = Object.keys(dishes);
                 let matches = allKeys.filter(key => {
                     const d = dishes[key];
@@ -623,19 +889,15 @@
                     if (d.temp === userAnswers.temp) score++;
                     if (d.fill === userAnswers.fill) score++;
                     if (d.sweet === userAnswers.sweet) score++;
-                    return score >= 2; // минимум 2 совпадения из 3
+                    return score >= 2;
                 });
-
-                // Если ничего не подошло — берём все
                 if (matches.length === 0) matches = allKeys;
 
-                // Убираем уже предложенные
                 const notTried = matches.filter(k => !suggestedDishes.includes(k));
                 const pool = notTried.length > 0 ? notTried : matches;
 
                 currentSuggestion = pick(pool);
                 suggestedDishes.push(currentSuggestion);
-
                 presentDish();
             }, 1200);
         }
@@ -648,8 +910,12 @@
                 .replace('{name}', d.name)
                 .replace('{emoji}', d.emoji);
 
+            const arTip = isPinned
+                ? "<span class='ar-tip'>" + d.phrase + "</span>"
+                : "<span class='ar-tip'>" + d.phrase + "<br>👆 Наведи на маркер для 3D!</span>";
+
             setBunny(
-                phrase + "<br><span style='font-size:13px;color:#888;font-weight:500;'>" + d.phrase + "</span>",
+                phrase + arTip,
                 [
                     { label: '✅ Беру!', style: 'success', action: orderDish },
                     { label: '🔄 Другое', style: 'secondary', action: tryAnother }
@@ -660,10 +926,7 @@
 
         function tryAnother() {
             setMood('sad');
-            setTimeout(() => {
-                // Ищем ещё блюдо из подходящих
-                findDish();
-            }, 600);
+            setTimeout(() => findDish(), 600);
         }
 
         function orderDish() {
@@ -673,7 +936,7 @@
                 pick(happyPhrases) + "<br><br>🍴 Твой <span class='highlight'>" + d.name + "</span> уже в пути!",
                 [
                     { label: '🔄 Сыграть ещё', style: 'primary', action: startGame },
-                    { label: '🐾 Спасибо, зайка!', style: 'secondary', action: petBunny }
+                    { label: '🍽️ Меню', style: 'secondary', action: switchToMenu }
                 ],
                 'love'
             );
@@ -695,7 +958,7 @@
                 pick(responses),
                 [
                     { label: '🎲 Играть!', style: 'primary', action: startGame },
-                    { label: '🐾 Ещё раз!', style: 'secondary', action: petBunny }
+                    { label: '🍽️ Меню', style: 'secondary', action: switchToMenu }
                 ],
                 'love'
             );
@@ -711,56 +974,36 @@
             );
         }
 
-        // ===== AR: ФИКСАЦИЯ МОДЕЛИ =====
+        // ===== AR =====
         function pinModelToWorld() {
             if (isPinned) return;
-
             const markerObj = hiroMarker.object3D;
             const worldPos = new THREE.Vector3();
             const worldQuat = new THREE.Quaternion();
             const worldScale = new THREE.Vector3();
-
             markerObj.updateMatrixWorld(true);
             markerObj.matrixWorld.decompose(worldPos, worldQuat, worldScale);
-
             worldRoot.object3D.position.copy(worldPos);
             worldRoot.object3D.quaternion.copy(worldQuat);
             worldRoot.object3D.scale.set(1, 1, 1);
-
             worldRoot.setAttribute('visible', 'true');
             isPinned = true;
 
-            // Прячем баннер, показываем зайку
-            scanBanner.classList.add('hidden');
-            bunnyVisible = true;
-            bunnyStage.style.display = 'flex';
-
-            // Начинаем игру!
-            setTimeout(startGame, 600);
+            markerHint.classList.add('found');
+            markerHintText.textContent = '✨ Готово! Можно наводить';
+            setTimeout(() => markerHint.classList.add('hidden'), 2500);
         }
 
         hiroMarker.addEventListener('markerFound', () => {
             if (!isPinned) {
-                setTimeout(() => {
-                    if (!isPinned) pinModelToWorld();
-                }, 400);
+                setTimeout(() => { if (!isPinned) pinModelToWorld(); }, 400);
             }
         });
 
         // Тап по зайке
         bunnyChar.addEventListener('click', petBunny);
 
-        // Кнопка сброса
-        document.getElementById('resetBtn').addEventListener('click', () => {
-            isPinned = false;
-            worldRoot.setAttribute('visible', 'false');
-            bunnyStage.style.display = 'none';
-            bunnyVisible = false;
-            scanBanner.classList.remove('hidden');
-            hideDish();
-        });
-
-        // ===== АВТО-ВРАЩЕНИЕ МОДЕЛИ =====
+        // АВТО-ВРАЩЕНИЕ
         let modelRotation = 0;
         function rotate() {
             if (dishModelEl && dishModelEl.object3D) {
@@ -771,33 +1014,30 @@
         }
         setTimeout(rotate, 1000);
 
-        // ===== ЖЕСТЫ (только щипок — масштаб) =====
+        // Жесты — масштаб
         let initialPinchDist = 0;
         let initialScale = 0.15;
         let currentScale = 0.15;
-
         function getPinchDist(t1, t2) {
             const dx = t1.clientX - t2.clientX;
             const dy = t1.clientY - t2.clientY;
             return Math.sqrt(dx*dx + dy*dy);
         }
-
         document.addEventListener('touchstart', (e) => {
-            if (e.target.closest('.bunny-stage') || e.target.closest('.scan-banner') || e.target.closest('.reset-btn')) return;
+            if (e.target.closest('.bunny-stage') || e.target.closest('.top-bar') ||
+                e.target.closest('.menu-panel') || e.target.closest('.dish-viewer')) return;
             if (e.touches.length === 2) {
                 initialPinchDist = getPinchDist(e.touches[0], e.touches[1]);
                 initialScale = currentScale;
             }
         }, { passive: true });
-
         document.addEventListener('touchmove', (e) => {
-            if (e.target.closest('.bunny-stage') || e.target.closest('.scan-banner') || e.target.closest('.reset-btn')) return;
+            if (e.target.closest('.bunny-stage') || e.target.closest('.top-bar') ||
+                e.target.closest('.menu-panel') || e.target.closest('.dish-viewer')) return;
             if (e.touches.length === 2) {
                 const newDist = getPinchDist(e.touches[0], e.touches[1]);
                 const factor = newDist / initialPinchDist;
                 currentScale = Math.max(0.05, Math.min(0.5, initialScale * factor));
-
-                // Применяем масштаб к видимой модели
                 Object.values(dishes).forEach(d => {
                     const el = document.getElementById(d.modelId);
                     if (el && el.getAttribute('visible') === true) {
@@ -806,6 +1046,10 @@
                 });
             }
         }, { passive: true });
+
+        // ===== СТАРТ =====
+        renderMenu();
+        startGame();
     </script>
 </body>
 </html>
