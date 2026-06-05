@@ -1,1055 +1,527 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <title>Зайка-гурман 🐰</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
-
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
-
         * {
-            margin: 0; padding: 0; box-sizing: border-box;
-            user-select: none; -webkit-user-select: none;
-            -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
         }
 
-        body {
-            font-family: 'Nunito', -apple-system, sans-serif;
-            overflow: hidden; background: #000;
-        }
-
-        /* === ВЕРХНЯЯ ПАНЕЛЬ === */
-        .top-bar {
-            position: fixed; top: 0; left: 0; right: 0; z-index: 290;
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 12px 14px;
-            padding-top: max(12px, env(safe-area-inset-top));
-            pointer-events: none;
-        }
-        .top-bar > * { pointer-events: auto; }
-
-        /* Подсказка маркера */
-        .marker-hint {
-            background: rgba(20, 25, 40, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            color: white; padding: 8px 14px; border-radius: 50px;
-            font-size: 12px; font-weight: 600;
-            display: flex; align-items: center; gap: 6px;
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            transition: all 0.4s ease;
-        }
-        .marker-hint.hidden {
-            opacity: 0; pointer-events: none;
-            transform: translateY(-10px);
-        }
-        .marker-hint .pulse-dot {
-            width: 7px; height: 7px; border-radius: 50%;
-            background: #4ADE80;
-            animation: pulseDot 1.5s ease-in-out infinite;
-        }
-        @keyframes pulseDot {
-            0%,100% { opacity: 1; box-shadow: 0 0 0 0 rgba(74,222,128,0.6); }
-            50% { opacity: 0.6; box-shadow: 0 0 0 6px rgba(74,222,128,0); }
-        }
-        .marker-hint.found {
-            background: rgba(76, 175, 80, 0.9);
-        }
-
-        /* Кнопки справа */
-        .top-actions {
-            display: flex; gap: 8px;
-        }
-        .top-btn {
-            background: rgba(20, 25, 40, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            color: white; border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 50px; padding: 8px 14px;
-            font-size: 13px; font-weight: 700;
-            cursor: pointer; font-family: inherit;
-            display: flex; align-items: center; gap: 6px;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-        .top-btn:active { transform: scale(0.92); }
-        .top-btn.active {
-            background: linear-gradient(135deg, #FF6B35, #FFA94D);
-            border-color: transparent;
-            box-shadow: 0 4px 20px rgba(255,107,53,0.5);
-        }
-        .top-btn .icon { font-size: 16px; }
-
-        /* === ЗАЙКА === */
-        .bunny-stage {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            z-index: 300; padding: 0 16px 20px;
-            padding-bottom: max(20px, env(safe-area-inset-bottom));
-            display: flex; flex-direction: column; align-items: center;
-            pointer-events: none;
-            transition: transform 0.5s cubic-bezier(0.16,1,0.3,1), opacity 0.4s ease;
-        }
-        .bunny-stage.hidden {
-            transform: translateY(120%); opacity: 0; pointer-events: none;
-        }
-
-        .bunny-character {
-            width: 110px; height: 110px;
-            background: linear-gradient(135deg, #FFE5B4, #FFCC80);
-            border-radius: 50% 50% 45% 45%;
-            position: relative;
-            margin-bottom: -25px; z-index: 2;
-            box-shadow: 0 8px 30px rgba(255,180,100,0.4);
-            cursor: pointer; pointer-events: auto;
-            animation: breathe 3s ease-in-out infinite;
-            transition: transform 0.3s ease;
-        }
-        .bunny-character:active { transform: scale(0.95); }
-        @keyframes breathe {
-            0%,100% { transform: scale(1) translateY(0); }
-            50% { transform: scale(1.03) translateY(-3px); }
-        }
-
-        .bunny-ear {
-            position: absolute; top: -42px;
-            width: 22px; height: 55px;
-            background: linear-gradient(180deg, #FFE5B4, #FFCC80);
-            border-radius: 50% 50% 30% 30%;
-            box-shadow: inset -3px 0 5px rgba(0,0,0,0.05);
-        }
-        .bunny-ear::after {
-            content: ''; position: absolute; top: 8px; left: 50%;
-            transform: translateX(-50%);
-            width: 10px; height: 32px;
-            background: #FFB6C1;
-            border-radius: 50% 50% 30% 30%;
-        }
-        .bunny-ear.left {
-            left: 18px; transform: rotate(-15deg);
-            animation: earWiggleL 4s ease-in-out infinite;
-        }
-        .bunny-ear.right {
-            right: 18px; transform: rotate(15deg);
-            animation: earWiggleR 4s ease-in-out infinite;
-        }
-        @keyframes earWiggleL {
-            0%,90%,100% { transform: rotate(-15deg); }
-            95% { transform: rotate(-25deg); }
-        }
-        @keyframes earWiggleR {
-            0%,90%,100% { transform: rotate(15deg); }
-            95% { transform: rotate(25deg); }
-        }
-
-        .bunny-face {
-            position: absolute; top: 30px; left: 0; right: 0;
-            display: flex; flex-direction: column; align-items: center;
-        }
-        .bunny-eyes { display: flex; gap: 18px; margin-bottom: 8px; }
-        .bunny-eye {
-            width: 12px; height: 16px;
-            background: #2c1810;
-            border-radius: 50%;
-            position: relative;
-            animation: blink 5s ease-in-out infinite;
-        }
-        .bunny-eye::after {
-            content: ''; position: absolute; top: 3px; left: 3px;
-            width: 4px; height: 4px;
-            background: white; border-radius: 50%;
-        }
-        @keyframes blink {
-            0%,92%,100% { transform: scaleY(1); }
-            95% { transform: scaleY(0.1); }
-        }
-        .bunny-nose {
-            width: 10px; height: 8px;
-            background: #FF69B4;
-            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-            margin-bottom: 4px;
-        }
-        .bunny-mouth {
-            width: 16px; height: 8px;
-            border-bottom: 2.5px solid #2c1810;
-            border-radius: 0 0 50% 50%;
-            transition: all 0.3s ease;
-        }
-        .bunny-character.happy .bunny-mouth {
-            width: 22px; height: 12px;
-            border-bottom: 3px solid #2c1810;
-        }
-        .bunny-character.sad .bunny-mouth {
-            border-bottom: none;
-            border-top: 2.5px solid #2c1810;
-            border-radius: 50% 50% 0 0;
-            margin-top: 6px;
-        }
-        .bunny-character.love .bunny-eye {
-            background: transparent; color: #FF1744; font-size: 18px;
-        }
-        .bunny-character.love .bunny-eye::before {
-            content: '♥'; position: absolute; top: -4px; left: -3px;
-        }
-        .bunny-character.love .bunny-eye::after { display: none; }
-        .bunny-character.sleepy .bunny-eye {
-            height: 3px; border-radius: 0;
-            background: #2c1810; margin-top: 6px;
-        }
-        .bunny-character.sleepy .bunny-eye::after { display: none; }
-        .bunny-character.thinking { animation: thinking 2s ease-in-out infinite; }
-        @keyframes thinking {
-            0%,100% { transform: rotate(0deg); }
-            25% { transform: rotate(-3deg); }
-            75% { transform: rotate(3deg); }
-        }
-        .bunny-character.excited { animation: excited 0.5s ease-in-out infinite; }
-        @keyframes excited {
-            0%,100% { transform: translateY(0); }
-            50% { transform: translateY(-15px); }
-        }
-
-        .bunny-cheek {
-            position: absolute; top: 52px;
-            width: 14px; height: 10px;
-            background: rgba(255, 100, 130, 0.4);
-            border-radius: 50%;
-        }
-        .bunny-cheek.left { left: 12px; }
-        .bunny-cheek.right { right: 12px; }
-
-        .bunny-bubble {
-            background: white;
-            border-radius: 28px;
-            padding: 22px 24px 20px;
-            width: 100%; max-width: 440px;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.4);
-            position: relative;
-            pointer-events: auto;
-            border: 3px solid #FFE5B4;
-            animation: bubbleAppear 0.5s cubic-bezier(0.16,1,0.3,1);
-        }
-        @keyframes bubbleAppear {
-            0% { opacity: 0; transform: translateY(20px) scale(0.9); }
-            100% { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        .bunny-bubble::before {
-            content: ''; position: absolute; top: -14px; left: 50%;
-            transform: translateX(-50%);
-            width: 0; height: 0;
-            border-left: 14px solid transparent;
-            border-right: 14px solid transparent;
-            border-bottom: 14px solid #FFE5B4;
-        }
-        .bunny-bubble::after {
-            content: ''; position: absolute; top: -10px; left: 50%;
-            transform: translateX(-50%);
-            width: 0; height: 0;
-            border-left: 12px solid transparent;
-            border-right: 12px solid transparent;
-            border-bottom: 12px solid white;
-        }
-        .bunny-text {
-            font-size: 17px; font-weight: 600;
-            color: #2c1810; line-height: 1.4;
-            text-align: center; margin-bottom: 16px;
-            min-height: 50px;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .bunny-text .highlight { color: #FF6B35; font-weight: 800; }
-        .bunny-text .ar-tip {
-            display: block; font-size: 13px;
-            color: #888; font-weight: 500; margin-top: 8px;
-        }
-        .bunny-actions {
-            display: flex; gap: 10px; flex-wrap: wrap;
-            justify-content: center;
-        }
-        .bunny-btn {
-            border: none; border-radius: 50px;
-            padding: 12px 22px; font-size: 15px;
-            font-weight: 700; cursor: pointer; font-family: inherit;
-            transition: all 0.2s ease;
-            display: flex; align-items: center; gap: 6px;
-        }
-        .bunny-btn:active { transform: scale(0.93); }
-        .bunny-btn.primary {
-            background: linear-gradient(135deg, #FF6B35, #FFA94D);
-            color: white;
-            box-shadow: 0 4px 15px rgba(255,107,53,0.4);
-        }
-        .bunny-btn.success {
-            background: linear-gradient(135deg, #4CAF50, #8BC34A);
-            color: white;
-            box-shadow: 0 4px 15px rgba(76,175,80,0.4);
-        }
-        .bunny-btn.secondary {
-            background: #F5F5F5; color: #555;
-            border: 2px solid #E0E0E0;
-        }
-        .bunny-btn.choice {
-            flex: 1; min-width: 130px;
-            background: white; color: #2c1810;
-            border: 2px solid #FFE5B4;
-            font-size: 14px; padding: 14px 16px;
-        }
-        .bunny-btn.choice:hover, .bunny-btn.choice:active {
-            background: #FFF8E1; border-color: #FF6B35;
-        }
-
-        /* === МЕНЮ === */
-        .menu-panel {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            z-index: 280;
-            background: linear-gradient(180deg, rgba(15,20,35,0.6) 0%, rgba(15,20,35,0.95) 50%);
-            padding-top: calc(max(12px, env(safe-area-inset-top)) + 60px);
-            padding-bottom: max(20px, env(safe-area-inset-bottom));
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16,1,0.3,1);
-        }
-        .menu-panel.hidden {
-            opacity: 0; pointer-events: none;
-            transform: translateY(20px);
-        }
-        .menu-header {
-            padding: 0 20px 16px;
-            text-align: center;
-        }
-        .menu-title {
-            font-size: 28px; font-weight: 900;
-            background: linear-gradient(135deg, #FFD86B, #FFA94D);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 4px;
-        }
-        .menu-subtitle {
-            font-size: 13px; color: rgba(255,255,255,0.6);
-            font-weight: 500;
-        }
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            padding: 0 16px;
-        }
-        .menu-card {
-            background: rgba(255,255,255,0.06);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 18px 14px;
-            border: 2px solid transparent;
+        /* Кнопка показа/скрытия меню */
+        .toggle-menu-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 200;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid #f39c12;
+            border-radius: 50px;
+            padding: 10px 18px;
+            color: #f39c12;
+            font-size: 14px;
+            font-weight: bold;
             cursor: pointer;
-            transition: all 0.25s ease;
-            position: relative;
-            overflow: hidden;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            transition: all 0.2s;
         }
-        .menu-card::before {
-            content: ''; position: absolute; inset: 0;
-            background: linear-gradient(135deg, rgba(255,107,53,0.15), rgba(255,216,107,0.1));
-            opacity: 0; transition: opacity 0.3s;
-        }
-        .menu-card:active {
-            transform: scale(0.96);
-            border-color: rgba(255,107,53,0.6);
-        }
-        .menu-card:active::before { opacity: 1; }
 
-        .menu-card-emoji {
-            font-size: 44px;
-            display: block;
-            text-align: center;
-            margin-bottom: 10px;
-            position: relative;
-            filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));
+        .toggle-menu-btn:hover {
+            background: #f39c12;
+            color: black;
         }
-        .menu-card-name {
-            font-size: 14px; font-weight: 800;
+
+        /* Кнопка закрепления объекта */
+        .pin-object-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 200;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid #4ecdc4;
+            border-radius: 50px;
+            padding: 10px 18px;
+            color: #4ecdc4;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            transition: all 0.2s;
+        }
+
+        .pin-object-btn.pinned {
+            background: #4ecdc4;
+            color: black;
+            border-color: white;
+        }
+
+        .pin-object-btn:hover {
+            background: #4ecdc4;
+            color: black;
+        }
+
+        /* Панель выбора блюд */
+        .menu-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 12px 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            max-width: 95%;
+            border: 1px solid rgba(255,255,255,0.2);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .menu-panel.hidden {
+            transform: translateX(-50%) translateY(120%);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .menu-btn {
+            background: linear-gradient(135deg, #2c3e50, #1a1a2e);
+            border: none;
             color: white;
-            text-align: center;
-            margin-bottom: 4px;
-            position: relative;
+            padding: 8px 14px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.15);
+            pointer-events: auto;
         }
-        .menu-card-tags {
-            display: flex; justify-content: center;
-            gap: 4px; flex-wrap: wrap;
-            position: relative;
-        }
-        .menu-tag {
-            font-size: 9px; font-weight: 700;
-            padding: 2px 7px; border-radius: 8px;
-            background: rgba(255,255,255,0.1);
-            color: rgba(255,255,255,0.7);
-        }
-        .menu-tag.hot { background: rgba(255,107,53,0.2); color: #FFA94D; }
-        .menu-tag.cold { background: rgba(78,205,196,0.2); color: #4ECDC4; }
-        .menu-tag.heavy { background: rgba(255,107,107,0.2); color: #FF6B6B; }
-        .menu-tag.light { background: rgba(168,230,207,0.2); color: #A8E6CF; }
-        .menu-tag.sweet { background: rgba(255,182,193,0.2); color: #FFB6C1; }
 
-        .menu-3d-badge {
-            position: absolute; top: 8px; right: 8px;
-            background: linear-gradient(135deg, #4ECDC4, #44B09E);
-            color: #000; font-size: 9px; font-weight: 900;
-            padding: 2px 6px; border-radius: 8px;
+        .menu-btn:hover {
+            transform: scale(1.05);
+            background: linear-gradient(135deg, #e67e22, #f39c12);
+        }
+
+        .menu-btn.active {
+            background: linear-gradient(135deg, #e67e22, #f39c12);
+            box-shadow: 0 0 12px rgba(230,126,34,0.5);
+        }
+
+        /* Инфо-панель с БЖУ */
+        .info-card {
+            position: fixed;
+            top: 70px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 12px 18px;
+            color: white;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            max-width: 260px;
+            border-left: 4px solid #f39c12;
+            pointer-events: none;
+        }
+
+        .info-card h3 {
+            font-size: 16px;
+            margin-bottom: 6px;
+            color: #f39c12;
+        }
+
+        .info-card .calories {
+            font-size: 22px;
+            font-weight: bold;
+            margin: 6px 0;
+        }
+
+        .info-card .calories span {
+            font-size: 12px;
+            font-weight: normal;
+            color: #aaa;
+        }
+
+        .info-card .macro {
+            font-size: 12px;
+            display: flex;
+            gap: 12px;
+            margin: 8px 0;
+        }
+
+        .info-card .macro div {
+            background: rgba(255,255,255,0.1);
+            padding: 3px 8px;
+            border-radius: 20px;
+        }
+
+        .info-card .ingredients {
+            font-size: 11px;
+            color: #ccc;
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+
+        .badge {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            z-index: 100;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            font-size: 10px;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-family: monospace;
+        }
+
+        .warning {
+            position: fixed;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            background: rgba(0,0,0,0.7);
+            color: #ffaa00;
+            font-size: 11px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-family: monospace;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+        
+        /* Область для AR */
+        #arScene {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             z-index: 1;
         }
-
-        .menu-footer {
-            text-align: center;
-            padding: 20px 16px 0;
-            color: rgba(255,255,255,0.4);
-            font-size: 12px;
-            font-weight: 500;
-        }
-        .menu-footer .bunny-link {
-            color: #FFD86B;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        /* === ПРОСМОТР БЛЮДА (когда выбрал из меню) === */
-        .dish-viewer {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            z-index: 295;
-            background: linear-gradient(180deg, transparent 0%, rgba(15,20,35,0.95) 40%);
-            padding: 80px 20px 20px;
-            padding-bottom: max(20px, env(safe-area-inset-bottom));
-            transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
-        }
-        .dish-viewer.hidden {
-            transform: translateY(100%); pointer-events: none;
-        }
-        .dish-card-big {
-            background: white;
-            border-radius: 24px;
-            padding: 20px;
-            max-width: 440px; margin: 0 auto;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        }
-        .dish-card-header {
-            display: flex; align-items: center; gap: 14px;
-            margin-bottom: 12px;
-        }
-        .dish-card-emoji {
-            font-size: 48px;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
-        }
-        .dish-card-info { flex: 1; }
-        .dish-card-name {
-            font-size: 20px; font-weight: 800;
-            color: #2c1810;
-            margin-bottom: 2px;
-        }
-        .dish-card-desc {
-            font-size: 13px; color: #888;
-            font-weight: 500;
-        }
-        .dish-card-actions {
-            display: flex; gap: 8px;
-        }
-        .dish-card-actions .bunny-btn {
-            flex: 1;
-            justify-content: center;
-        }
-
-        /* === КОНФЕТТИ === */
-        .confetti {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 9999; pointer-events: none; overflow: hidden;
-        }
-        .confetti-piece {
-            position: absolute; width: 12px; height: 12px;
-            top: -20px; border-radius: 2px;
-            animation: confettiFall 3s ease-in forwards;
-        }
-        @keyframes confettiFall {
-            0% { opacity: 1; transform: translateY(0) rotate(0deg); }
-            100% { opacity: 0; transform: translateY(110vh) rotate(720deg); }
+        
+        /* Все UI элементы выше AR */
+        .toggle-menu-btn, .pin-object-btn, .menu-panel, .info-card, .badge, .warning {
+            z-index: 200;
         }
     </style>
 </head>
-<body>
+<body style="margin: 0; overflow: hidden;">
 
-    <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
-    <div class="top-bar">
-        <div class="marker-hint" id="markerHint">
-            <span class="pulse-dot"></span>
-            <span id="markerHintText">Наведи на маркер для 3D 🎯</span>
+    <!-- Кнопка скрытия/показа меню -->
+    <button class="toggle-menu-btn" id="toggleMenuBtn">🙈 Скрыть меню</button>
+
+    <!-- Кнопка закрепления объекта -->
+    <button class="pin-object-btn" id="pinObjectBtn">📍 Закрепить</button>
+
+    <!-- Инфо-панель -->
+    <div class="info-card" id="infoCard">
+        <h3 id="dishName">🍔 Бургер</h3>
+        <div class="calories" id="calories">450 <span>ккал</span></div>
+        <div class="macro" id="macro">
+            <div>🥩 Б: 25г</div>
+            <div>🧈 Ж: 22г</div>
+            <div>🍚 У: 35г</div>
         </div>
-        <div class="top-actions">
-            <button class="top-btn" id="modeToggleBtn">
-                <span class="icon">🍽️</span>
-                <span id="modeBtnLabel">Меню</span>
-            </button>
+        <div class="ingredients" id="ingredients">
+            Состав: говяжья котлета, сыр чеддер, салат, помидор, соус BBQ
         </div>
     </div>
 
-    <!-- РЕЖИМ МЕНЮ -->
-    <div class="menu-panel hidden" id="menuPanel">
-        <div class="menu-header">
-            <div class="menu-title">Наше меню</div>
-            <div class="menu-subtitle">Тапни на блюдо, чтобы посмотреть</div>
-        </div>
-        <div class="menu-grid" id="menuGrid"></div>
-        <div class="menu-footer">
-            Не знаешь что выбрать?<br>
-            <span class="bunny-link" onclick="switchToBunny()">🐰 Спроси у зайки →</span>
-        </div>
+    <!-- Панель выбора блюд -->
+    <div class="menu-panel" id="menuPanel">
+        <button class="menu-btn" data-dish="burger">🍔 Бургер</button>
+        <button class="menu-btn" data-dish="pizza">🍕 Пицца</button>
+        <button class="menu-btn" data-dish="sushi">🍣 Роллы</button>
+        <button class="menu-btn" data-dish="salad">🥗 Цезарь</button>
+        <button class="menu-btn" data-dish="pasta">🍝 Карбонара</button>
+        <button class="menu-btn" data-dish="steak">🥩 Стейк</button>
+        <button class="menu-btn" data-dish="bowl">🥣 Йогурт</button>
+        <button class="menu-btn" data-dish="coffee">☕ Латте</button>
+        <button class="menu-btn" data-dish="donut">🍩 Пончик</button>
+        <button class="menu-btn" data-dish="icecream">🍦 Пломбир</button>
     </div>
 
-    <!-- ПРОСМОТР БЛЮДА -->
-    <div class="dish-viewer hidden" id="dishViewer">
-        <div class="dish-card-big">
-            <div class="dish-card-header">
-                <div class="dish-card-emoji" id="viewerEmoji">🍔</div>
-                <div class="dish-card-info">
-                    <div class="dish-card-name" id="viewerName">Чизбургер</div>
-                    <div class="dish-card-desc" id="viewerDesc">сочный и вкусный</div>
-                </div>
-            </div>
-            <div class="dish-card-actions">
-                <button class="bunny-btn success" onclick="orderFromViewer()">
-                    ✅ Заказать
-                </button>
-                <button class="bunny-btn secondary" onclick="closeDishViewer()">
-                    ✕ Закрыть
-                </button>
-            </div>
-        </div>
-    </div>
+    <div class="badge">AR Menu • Наведи на маркер Hiro</div>
+    <div class="warning" id="warningMsg">💡 Води пальцем по экрану (в любом месте), чтобы перемещать блюдо</div>
 
-    <!-- ЗАЙКА -->
-    <div class="bunny-stage" id="bunnyStage">
-        <div class="bunny-character happy" id="bunnyChar">
-            <div class="bunny-ear left"></div>
-            <div class="bunny-ear right"></div>
-            <div class="bunny-cheek left"></div>
-            <div class="bunny-cheek right"></div>
-            <div class="bunny-face">
-                <div class="bunny-eyes">
-                    <div class="bunny-eye"></div>
-                    <div class="bunny-eye"></div>
-                </div>
-                <div class="bunny-nose"></div>
-                <div class="bunny-mouth"></div>
-            </div>
-        </div>
-        <div class="bunny-bubble">
-            <div class="bunny-text" id="bunnyText">Привет! 🌿</div>
-            <div class="bunny-actions" id="bunnyActions"></div>
-        </div>
-    </div>
-
-    <!-- AR -->
-    <a-scene id="arScene" embedded
-             arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
+    <!-- AR СЦЕНА -->
+    <a-scene id="arScene" 
              vr-mode-ui="enabled: false"
-             renderer="logarithmicDepthBuffer: true; precision: medium; alpha: true; antialias: true;"
-             loading-screen="enabled: false">
-
-        <a-entity light="type: ambient; intensity: 1.0; color: #ffffff"></a-entity>
-        <a-entity light="type: directional; intensity: 0.8; color: #ffffff" position="1 2 1"></a-entity>
-        <a-entity light="type: directional; intensity: 0.4; color: #ffeecc" position="-1 1 -1"></a-entity>
-
-        <a-marker id="hiroMarker" preset="hiro" smooth="true" smooth-count="5"></a-marker>
-
-        <a-entity id="worldRoot" visible="false">
-            <a-entity id="dishModel" position="0 0 0" rotation="0 0 0" scale="1 1 1">
-
-                <a-entity id="burgerGroup" visible="false"
-                    gltf-model="url(./burger.glb)"
-                    position="0 0 0" rotation="-90 0 0" scale="0.15 0.15 0.15"></a-entity>
-
-                <a-entity id="pizzaGroup" visible="false"
-                    gltf-model="url(./pizza.glb)"
-                    position="0 0 0" rotation="-90 0 0" scale="0.15 0.15 0.15"></a-entity>
-
-                <a-entity id="sushiGroup" visible="false"
-                    gltf-model="url(./sushi.glb)"
-                    position="0 0 0" rotation="-90 0 0" scale="0.15 0.15 0.15"></a-entity>
-
-                <a-entity id="saladGroup" visible="false"
-                    gltf-model="url(./caesar.glb)"
-                    position="0 0 0" rotation="-90 0 0" scale="0.15 0.15 0.15"></a-entity>
-
-                <a-entity id="steakGroup" visible="false"
-                    gltf-model="url(./steak.glb)"
-                    position="0 0 0" rotation="-90 0 0" scale="0.15 0.15 0.15"></a-entity>
-
-                <a-entity id="coffeeGroup" visible="false"
-                    gltf-model="url(./latte.glb)"
-                    position="0 0 0" rotation="-90 0 0" scale="0.15 0.15 0.15"></a-entity>
+             embedded 
+             arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono;">
+        
+        <!-- Маркер -->
+        <a-marker id="hiroMarker" preset="hiro">
+            
+            <!-- 3D-графика внутри маркера -->
+            <a-entity id="dishModel" position="0 0.5 0">
+                <!-- Бургер -->
+                <a-group id="burgerGroup">
+                    <a-cylinder color="#D2691E" radius="0.45" height="0.12" position="0 0 0"></a-cylinder>
+                    <a-cylinder color="#8B4513" radius="0.46" height="0.08" position="0 0.08 0"></a-cylinder>
+                    <a-cylinder color="#228B22" radius="0.44" height="0.05" position="0 0.16 0"></a-cylinder>
+                    <a-torus radius="0.44" radius-tubular="0.04" color="#FF6347" position="0 0.21 0"></a-torus>
+                    <a-cylinder color="#F4A460" radius="0.44" height="0.07" position="0 0.25 0"></a-cylinder>
+                    <a-cylinder color="#D2691E" radius="0.46" height="0.1" position="0 0.32 0"></a-cylinder>
+                    <a-sphere color="#FFD700" radius="0.08" position="0 0.38 0"></a-sphere>
+                </a-group>
+                <a-box id="pizzaModel" position="0 0.1 0" width="0.9" height="0.1" depth="0.9" color="#E67E22" visible="false"></a-box>
+                <a-box id="sushiModel" position="0 0.15 0" width="0.6" height="0.1" depth="0.4" color="#F5DEB3" visible="false"></a-box>
+                <a-box id="saladModel" position="0 0.2 0" width="0.7" height="0.15" depth="0.7" color="#32CD32" visible="false"></a-box>
+                <a-box id="pastaModel" position="0 0.1 0" width="0.6" height="0.12" depth="0.6" color="#FFD700" visible="false"></a-box>
+                <a-box id="steakModel" position="0 0.1 0" width="0.6" height="0.08" depth="0.5" color="#8B0000" visible="false"></a-box>
+                <a-box id="bowlModel" position="0 0.1 0" width="0.5" height="0.12" depth="0.5" color="#F0F8FF" visible="false"></a-box>
+                <a-box id="coffeeModel" position="0 0.15 0" width="0.35" height="0.2" depth="0.35" color="#6F4E37" visible="false"></a-box>
+                <a-box id="donutModel" position="0 0.1 0" width="0.5" height="0.1" depth="0.5" color="#FFB6C1" visible="false"></a-box>
+                <a-box id="icecreamModel" position="0 0.2 0" width="0.4" height="0.25" depth="0.4" color="#FFFACD" visible="false"></a-box>
             </a-entity>
+
+            <a-text id="dishText" value="🍔 Бургер" position="0 -0.3 0" color="white" scale="0.8 0.8 0.8" align="center" background="true" background-color="black" background-padding="0.2"></a-text>
+        </a-marker>
+
+        <!-- Закреплённая группа -->
+        <a-entity id="pinnedGroup" position="0 0 0" visible="false">
+            <a-entity id="pinnedModel" position="0 0.5 0"></a-entity>
+            <a-text id="pinnedText" value="" position="0 -0.3 0" color="white" scale="0.8 0.8 0.8" align="center" background="true" background-color="black" background-padding="0.2"></a-text>
         </a-entity>
 
         <a-entity camera></a-entity>
     </a-scene>
 
     <script>
-        // ===== ДАННЫЕ БЛЮД =====
+        // БАЗА ДАННЫХ БЛЮД
         const dishes = {
-            burger: {
-                name: "Чизбургер", emoji: "🍔", modelId: "burgerGroup",
-                temp: "hot", fill: "heavy", sweet: false, has3d: true,
-                phrase: "сочный, сытный, с расплавленным сыром"
-            },
-            pizza: {
-                name: "Пицца Маргарита", emoji: "🍕", modelId: "pizzaGroup",
-                temp: "hot", fill: "heavy", sweet: false, has3d: true,
-                phrase: "ароматная, с базиликом и моцареллой"
-            },
-            sushi: {
-                name: "Роллы Филадельфия", emoji: "🍣", modelId: "sushiGroup",
-                temp: "cold", fill: "light", sweet: false, has3d: true,
-                phrase: "нежные, с лососем и сливочным сыром"
-            },
-            salad: {
-                name: "Цезарь с курицей", emoji: "🥗", modelId: "saladGroup",
-                temp: "cold", fill: "light", sweet: false, has3d: true,
-                phrase: "свежий, хрустящий, с курочкой"
-            },
-            steak: {
-                name: "Стейк Рибай", emoji: "🥩", modelId: "steakGroup",
-                temp: "hot", fill: "heavy", sweet: false, has3d: true,
-                phrase: "мраморный, прожаренный до совершенства"
-            },
-            coffee: {
-                name: "Латте", emoji: "☕", modelId: "coffeeGroup",
-                temp: "hot", fill: "light", sweet: true, has3d: true,
-                phrase: "тёплый, кремовый, бодрящий"
+            burger: { name: "🍔 Чизбургер", calories: "520", protein: "28", fat: "26", carbs: "42", ingredients: "Говяжья котлета 150г, сыр чеддер, салат айсберг, помидор, маринованные огурцы, соус BBQ, булка с кунжутом" },
+            pizza: { name: "🍕 Пицца Маргарита", calories: "680", protein: "24", fat: "28", carbs: "75", ingredients: "Томатный соус, моцарелла, свежие томаты, базилик, оливковое масло, тесто на закваске" },
+            sushi: { name: "🍣 Роллы Филадельфия", calories: "380", protein: "18", fat: "16", carbs: "42", ingredients: "Рис, норвежский лосось, сливочный сыр, огурец, авокадо, нори, кунжут" },
+            salad: { name: "🥗 Цезарь с курицей", calories: "410", protein: "32", fat: "24", carbs: "18", ingredients: "Куриное филе, салат романо, пармезан, сухарики, соус Цезарь, перепелиное яйцо" },
+            pasta: { name: "🍝 Паста Карбонара", calories: "720", protein: "26", fat: "34", carbs: "72", ingredients: "Спагетти, гуанчиале, яйцо, пекорино романо, чёрный перец, пармезан" },
+            steak: { name: "🥩 Стейк Рибай", calories: "890", protein: "52", fat: "68", carbs: "2", ingredients: "Мраморная говядина (250г), розмарин, тимьян, чеснок, сливочное масло, трюфельный соус" },
+            bowl: { name: "🥣 Греческий йогурт с гранолой", calories: "320", protein: "15", fat: "12", carbs: "38", ingredients: "Натуральный йогурт 5%, гранола, свежие ягоды, мёд, семена чиа" },
+            coffee: { name: "☕ Латте", calories: "180", protein: "8", fat: "9", carbs: "14", ingredients: "Эспрессо, вспененное молоко 3.2%, сироп (по желанию), корица" },
+            donut: { name: "🍩 Пончик глазированный", calories: "350", protein: "5", fat: "18", carbs: "44", ingredients: "Дрожжевое тесто, шоколадная глазурь, кондитерская посыпка" },
+            icecream: { name: "🍦 Пломбир ванильный", calories: "220", protein: "4", fat: "14", carbs: "20", ingredients: "Натуральные сливки 33%, яичный желток, сахар, ванильный стручок" }
+        };
+
+        // Элементы
+        const infoCard = document.getElementById('infoCard');
+        const dishNameEl = document.getElementById('dishName');
+        const caloriesEl = document.getElementById('calories');
+        const macroEl = document.getElementById('macro');
+        const ingredientsEl = document.getElementById('ingredients');
+        const menuPanel = document.getElementById('menuPanel');
+        const toggleBtn = document.getElementById('toggleMenuBtn');
+        const pinBtn = document.getElementById('pinObjectBtn');
+        const hiroMarker = document.getElementById('hiroMarker');
+        const pinnedGroup = document.getElementById('pinnedGroup');
+        const dishText = document.getElementById('dishText');
+        const pinnedText = document.getElementById('pinnedText');
+
+        // Модели
+        const models = {
+            burger: document.getElementById('burgerGroup'),
+            pizza: document.getElementById('pizzaModel'),
+            sushi: document.getElementById('sushiModel'),
+            salad: document.getElementById('saladModel'),
+            pasta: document.getElementById('pastaModel'),
+            steak: document.getElementById('steakModel'),
+            bowl: document.getElementById('bowlModel'),
+            coffee: document.getElementById('coffeeModel'),
+            donut: document.getElementById('donutModel'),
+            icecream: document.getElementById('icecreamModel')
+        };
+
+        const pinnedModels = {};
+        for (let key in models) {
+            if (models[key]) {
+                const clone = models[key].cloneNode(true);
+                clone.setAttribute('visible', false);
+                document.getElementById('pinnedModel').appendChild(clone);
+                pinnedModels[key] = clone;
+            }
+        }
+
+        let currentDish = 'burger';
+        let isPinned = false;
+        let isDragging = false;
+        let lastTouchX = 0;
+        let lastTouchY = 0;
+
+        function selectDish(dishId) {
+            currentDish = dishId;
+            const dish = dishes[dishId];
+            if (!dish) return;
+
+            dishNameEl.textContent = dish.name;
+            caloriesEl.innerHTML = `${dish.calories} <span>ккал</span>`;
+            macroEl.innerHTML = `<div>🥩 Б: ${dish.protein}г</div><div>🧈 Ж: ${dish.fat}г</div><div>🍚 У: ${dish.carbs}г</div>`;
+            ingredientsEl.textContent = `Состав: ${dish.ingredients}`;
+            
+            dishText.setAttribute('value', dish.name);
+            
+            for (let key in models) {
+                if (models[key]) models[key].setAttribute('visible', 'false');
+            }
+            if (models[dishId]) models[dishId].setAttribute('visible', 'true');
+            
+            if (isPinned) {
+                for (let key in pinnedModels) {
+                    if (pinnedModels[key]) pinnedModels[key].setAttribute('visible', 'false');
+                }
+                if (pinnedModels[dishId]) pinnedModels[dishId].setAttribute('visible', 'true');
+                pinnedText.setAttribute('value', dish.name);
+            }
+            
+            document.querySelectorAll('.menu-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.dish === dishId) btn.classList.add('active');
+            });
+        }
+
+        // Перемещение пальцем — РАБОТАЕТ НА ВСЁМ ЭКРАНЕ (убрана проверка на UI)
+        function startDrag(e) {
+            isDragging = true;
+            const touch = e.touches[0];
+            lastTouchX = touch.clientX;
+            lastTouchY = touch.clientY;
+            e.preventDefault();
+        }
+
+        function onDrag(e) {
+            if (!isDragging) return;
+            const touch = e.touches[0];
+            const deltaX = (touch.clientX - lastTouchX) * 0.005;
+            const deltaY = (touch.clientY - lastTouchY) * 0.005;
+            
+            if (isPinned && pinnedGroup.getAttribute('visible') === 'true') {
+                let pos = pinnedGroup.getAttribute('position');
+                pinnedGroup.setAttribute('position', {
+                    x: pos.x + deltaX,
+                    y: pos.y - deltaY,
+                    z: pos.z
+                });
+            } else if (hiroMarker.getAttribute('visible') === 'true') {
+                let pos = hiroMarker.getAttribute('position');
+                hiroMarker.setAttribute('position', {
+                    x: pos.x + deltaX,
+                    y: pos.y - deltaY,
+                    z: pos.z
+                });
+            }
+            
+            lastTouchX = touch.clientX;
+            lastTouchY = touch.clientY;
+            e.preventDefault();
+        }
+
+        function endDrag(e) {
+            isDragging = false;
+        }
+
+        function pinObject() {
+            if (!isPinned) {
+                const markerPosition = hiroMarker.object3D.position;
+                const markerRotation = hiroMarker.object3D.rotation;
+                
+                pinnedGroup.object3D.position.copy(markerPosition);
+                pinnedGroup.object3D.rotation.copy(markerRotation);
+                
+                for (let key in pinnedModels) {
+                    pinnedModels[key].setAttribute('visible', 'false');
+                }
+                if (pinnedModels[currentDish]) {
+                    pinnedModels[currentDish].setAttribute('visible', 'true');
+                }
+                pinnedText.setAttribute('value', dishes[currentDish].name);
+                
+                pinnedGroup.setAttribute('visible', 'true');
+                hiroMarker.setAttribute('visible', 'false');
+                
+                isPinned = true;
+                pinBtn.textContent = '📍 Открепить';
+                pinBtn.classList.add('pinned');
+                document.getElementById('warningMsg').textContent = '✅ Объект закреплён! Води пальцем — перемещай!';
+                setTimeout(() => {
+                    document.getElementById('warningMsg').style.opacity = '0.5';
+                }, 3000);
+            } else {
+                pinnedGroup.setAttribute('visible', 'false');
+                hiroMarker.setAttribute('visible', 'true');
+                isPinned = false;
+                pinBtn.textContent = '📍 Закрепить';
+                pinBtn.classList.remove('pinned');
+                document.getElementById('warningMsg').textContent = '💡 Води пальцем по экрану (в любом месте), чтобы перемещать блюдо';
+                document.getElementById('warningMsg').style.opacity = '1';
+            }
+        }
+
+        let menuHidden = false;
+        toggleBtn.onclick = () => {
+            menuHidden = !menuHidden;
+            if (menuHidden) {
+                menuPanel.classList.add('hidden');
+                toggleBtn.innerHTML = '🙉 Показать меню';
+            } else {
+                menuPanel.classList.remove('hidden');
+                toggleBtn.innerHTML = '🙈 Скрыть меню';
             }
         };
 
-        // ===== ФРАЗЫ =====
-        const greetings = [
-            "Привет! 🌿 Я <span class='highlight'>Зайка-гурман</span>!",
-            "Ой, привет-привет! 🥕 Рад тебя видеть!",
-            "Здравствуй, друг! 💚 Я искал, кого угостить!"
-        ];
-        const intros = [
-            "Не знаешь, чего хочешь? 🤔 Давай я угадаю!",
-            "Я отлично подбираю блюда! Сыграем? 🎲",
-            "Хочешь, найду тебе идеальное блюдо? ✨"
-        ];
-        const thinkingPhrases = [
-            "Хм-м... дай-ка подумать... 🤔",
-            "Так-так, что бы тебе подошло... 🐰",
-            "Сейчас-сейчас, прикину... 💭"
-        ];
-        const presentPhrases = [
-            "Я думаю, тебе нужен <span class='highlight'>{name}</span> {emoji}!",
-            "О! Точно — <span class='highlight'>{name}</span> {emoji}!",
-            "Вот оно! <span class='highlight'>{name}</span> {emoji} — то, что надо!",
-            "Идеально подойдёт <span class='highlight'>{name}</span> {emoji}!"
-        ];
-        const happyPhrases = [
-            "Урааа! 🎉 Приятного аппетита, друг! 🍴",
-            "Я так рад! 💚 Кушай на здоровье!",
-            "Отличный выбор! 🌟 Наслаждайся!"
-        ];
-
-        // ===== СОСТОЯНИЕ =====
-        let mode = 'bunny'; // 'bunny' или 'menu'
-        let isPinned = false;
-        let userAnswers = { temp: null, fill: null, sweet: null };
-        let suggestedDishes = [];
-        let currentSuggestion = null;
-        let viewerDish = null;
-        let idleTimer = null;
-
-        // ===== ЭЛЕМЕНТЫ =====
-        const bunnyStage = document.getElementById('bunnyStage');
-        const bunnyChar = document.getElementById('bunnyChar');
-        const bunnyText = document.getElementById('bunnyText');
-        const bunnyActions = document.getElementById('bunnyActions');
-        const menuPanel = document.getElementById('menuPanel');
-        const menuGrid = document.getElementById('menuGrid');
-        const dishViewer = document.getElementById('dishViewer');
-        const viewerEmoji = document.getElementById('viewerEmoji');
-        const viewerName = document.getElementById('viewerName');
-        const viewerDesc = document.getElementById('viewerDesc');
-        const markerHint = document.getElementById('markerHint');
-        const markerHintText = document.getElementById('markerHintText');
-        const modeToggleBtn = document.getElementById('modeToggleBtn');
-        const modeBtnLabel = document.getElementById('modeBtnLabel');
-        const worldRoot = document.getElementById('worldRoot');
-        const hiroMarker = document.getElementById('hiroMarker');
-        const dishModelEl = document.getElementById('dishModel');
-
-        // ===== УТИЛИТЫ =====
-        function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-
-        function setMood(mood) {
-            bunnyChar.className = 'bunny-character ' + mood;
-        }
-
-        function showConfetti() {
-            const container = document.createElement('div');
-            container.className = 'confetti';
-            document.body.appendChild(container);
-            const colors = ['#FF6B35','#FFD86B','#4CAF50','#FF69B4','#A8E6CF','#FFA94D'];
-            for (let i = 0; i < 40; i++) {
-                const piece = document.createElement('div');
-                piece.className = 'confetti-piece';
-                piece.style.left = Math.random() * 100 + '%';
-                piece.style.background = pick(colors);
-                piece.style.animationDelay = Math.random() * 0.5 + 's';
-                piece.style.animationDuration = (2 + Math.random() * 1.5) + 's';
-                container.appendChild(piece);
-            }
-            setTimeout(() => container.remove(), 3500);
-        }
-
-        function showDish(dishId) {
-            Object.values(dishes).forEach(d => {
-                const el = document.getElementById(d.modelId);
-                if (el) el.setAttribute('visible', 'false');
+        document.querySelectorAll('.menu-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                selectDish(btn.dataset.dish);
             });
-            const dish = dishes[dishId];
-            if (dish) {
-                const el = document.getElementById(dish.modelId);
-                if (el) el.setAttribute('visible', 'true');
-            }
-        }
-
-        function hideDish() {
-            Object.values(dishes).forEach(d => {
-                const el = document.getElementById(d.modelId);
-                if (el) el.setAttribute('visible', 'false');
-            });
-        }
-
-        function setBunny(text, actions, mood = 'happy') {
-            setMood(mood);
-            bunnyText.innerHTML = text;
-            bunnyActions.innerHTML = '';
-            actions.forEach(a => {
-                const btn = document.createElement('button');
-                btn.className = 'bunny-btn ' + (a.style || 'secondary');
-                btn.innerHTML = a.label;
-                btn.onclick = a.action;
-                bunnyActions.appendChild(btn);
-            });
-            resetIdleTimer();
-        }
-
-        function resetIdleTimer() {
-            clearTimeout(idleTimer);
-            idleTimer = setTimeout(() => {
-                if (mode === 'bunny') goSleepy();
-            }, 45000);
-        }
-
-        // ===== ПЕРЕКЛЮЧЕНИЕ РЕЖИМОВ =====
-        function switchToMenu() {
-            mode = 'menu';
-            bunnyStage.classList.add('hidden');
-            menuPanel.classList.remove('hidden');
-            modeBtnLabel.textContent = 'Зайка';
-            modeToggleBtn.querySelector('.icon').textContent = '🐰';
-            modeToggleBtn.classList.add('active');
-            closeDishViewer();
-        }
-
-        function switchToBunny() {
-            mode = 'bunny';
-            menuPanel.classList.add('hidden');
-            bunnyStage.classList.remove('hidden');
-            modeBtnLabel.textContent = 'Меню';
-            modeToggleBtn.querySelector('.icon').textContent = '🍽️';
-            modeToggleBtn.classList.remove('active');
-            closeDishViewer();
-        }
-
-        modeToggleBtn.addEventListener('click', () => {
-            if (mode === 'bunny') switchToMenu();
-            else switchToBunny();
         });
 
-        // ===== РЕНДЕР МЕНЮ =====
-        function renderMenu() {
-            menuGrid.innerHTML = '';
-            Object.entries(dishes).forEach(([key, d]) => {
-                const card = document.createElement('div');
-                card.className = 'menu-card';
-                card.innerHTML = `
-                    ${d.has3d ? '<span class="menu-3d-badge">3D</span>' : ''}
-                    <span class="menu-card-emoji">${d.emoji}</span>
-                    <div class="menu-card-name">${d.name}</div>
-                    <div class="menu-card-tags">
-                        <span class="menu-tag ${d.temp}">${d.temp === 'hot' ? '🔥 горячее' : '❄️ холодное'}</span>
-                        <span class="menu-tag ${d.fill}">${d.fill === 'heavy' ? '💪 сытно' : '🪶 легко'}</span>
-                        ${d.sweet ? '<span class="menu-tag sweet">🍯 сладкое</span>' : ''}
-                    </div>
-                `;
-                card.onclick = () => openDishViewer(key);
-                menuGrid.appendChild(card);
-            });
-        }
+        pinBtn.onclick = pinObject;
 
-        // ===== ПРОСМОТР БЛЮДА ИЗ МЕНЮ =====
-        function openDishViewer(dishId) {
-            viewerDish = dishId;
-            const d = dishes[dishId];
-            viewerEmoji.textContent = d.emoji;
-            viewerName.textContent = d.name;
-            viewerDesc.textContent = d.phrase;
-            dishViewer.classList.remove('hidden');
-
-            // Показываем 3D-модель
-            showDish(dishId);
-        }
-
-        function closeDishViewer() {
-            dishViewer.classList.add('hidden');
-            viewerDish = null;
-            if (mode === 'menu') hideDish();
-        }
-
-        function orderFromViewer() {
-            const d = dishes[viewerDish];
-            showConfetti();
-            closeDishViewer();
-            // Переключаемся к зайке, чтобы он порадовался
-            switchToBunny();
-            setBunny(
-                pick(happyPhrases) + "<br><br>🍴 Твой <span class='highlight'>" + d.name + "</span> уже в пути!",
-                [
-                    { label: '🍽️ Назад в меню', style: 'secondary', action: switchToMenu },
-                    { label: '🎲 Сыграть!', style: 'primary', action: startGame }
-                ],
-                'love'
-            );
-        }
-
-        // ===== ИГРА С ЗАЙКОЙ =====
-        function startGame() {
-            userAnswers = { temp: null, fill: null, sweet: null };
-            suggestedDishes = [];
-            currentSuggestion = null;
-            hideDish();
-
-            setBunny(
-                pick(greetings) + "<br>" + pick(intros),
-                [
-                    { label: '🎲 Давай!', style: 'primary', action: askTemp },
-                    { label: '🍽️ Посмотреть меню', style: 'secondary', action: switchToMenu }
-                ],
-                'happy'
-            );
-        }
-
-        function askTemp() {
-            setBunny(
-                "Скажи... тебе сейчас хочется <span class='highlight'>тепла</span> или <span class='highlight'>прохлады</span>? 🌡️",
-                [
-                    { label: '🔥 Горячее', style: 'choice', action: () => { userAnswers.temp = 'hot'; askFill(); } },
-                    { label: '❄️ Холодное', style: 'choice', action: () => { userAnswers.temp = 'cold'; askFill(); } }
-                ],
-                'thinking'
-            );
-        }
-
-        function askFill() {
-            setBunny(
-                "Хочешь <span class='highlight'>как следует наесться</span> или просто <span class='highlight'>перекусить</span>? 🍽️",
-                [
-                    { label: '💪 Сытно!', style: 'choice', action: () => { userAnswers.fill = 'heavy'; askSweet(); } },
-                    { label: '🪶 Полегче', style: 'choice', action: () => { userAnswers.fill = 'light'; askSweet(); } }
-                ],
-                'thinking'
-            );
-        }
-
-        function askSweet() {
-            setBunny(
-                "Последний вопрос: душа просит <span class='highlight'>чего-то сладкого</span>? 🍰",
-                [
-                    { label: '🍯 Да!', style: 'choice', action: () => { userAnswers.sweet = true; findDish(); } },
-                    { label: '🥗 Нет', style: 'choice', action: () => { userAnswers.sweet = false; findDish(); } }
-                ],
-                'thinking'
-            );
-        }
-
-        function findDish() {
-            setBunny(pick(thinkingPhrases), [], 'thinking');
-
-            setTimeout(() => {
-                const allKeys = Object.keys(dishes);
-                let matches = allKeys.filter(key => {
-                    const d = dishes[key];
-                    let score = 0;
-                    if (d.temp === userAnswers.temp) score++;
-                    if (d.fill === userAnswers.fill) score++;
-                    if (d.sweet === userAnswers.sweet) score++;
-                    return score >= 2;
-                });
-                if (matches.length === 0) matches = allKeys;
-
-                const notTried = matches.filter(k => !suggestedDishes.includes(k));
-                const pool = notTried.length > 0 ? notTried : matches;
-
-                currentSuggestion = pick(pool);
-                suggestedDishes.push(currentSuggestion);
-                presentDish();
-            }, 1200);
-        }
-
-        function presentDish() {
-            const d = dishes[currentSuggestion];
-            showDish(currentSuggestion);
-
-            const phrase = pick(presentPhrases)
-                .replace('{name}', d.name)
-                .replace('{emoji}', d.emoji);
-
-            const arTip = isPinned
-                ? "<span class='ar-tip'>" + d.phrase + "</span>"
-                : "<span class='ar-tip'>" + d.phrase + "<br>👆 Наведи на маркер для 3D!</span>";
-
-            setBunny(
-                phrase + arTip,
-                [
-                    { label: '✅ Беру!', style: 'success', action: orderDish },
-                    { label: '🔄 Другое', style: 'secondary', action: tryAnother }
-                ],
-                'excited'
-            );
-        }
-
-        function tryAnother() {
-            setMood('sad');
-            setTimeout(() => findDish(), 600);
-        }
-
-        function orderDish() {
-            const d = dishes[currentSuggestion];
-            showConfetti();
-            setBunny(
-                pick(happyPhrases) + "<br><br>🍴 Твой <span class='highlight'>" + d.name + "</span> уже в пути!",
-                [
-                    { label: '🔄 Сыграть ещё', style: 'primary', action: startGame },
-                    { label: '🍽️ Меню', style: 'secondary', action: switchToMenu }
-                ],
-                'love'
-            );
-        }
-
-        function petBunny() {
-            const responses = [
-                "Хи-хи! 💕 Щекотно!",
-                "Ой, как приятно! 🥰",
-                "Спасибо! 🌸 Ты лучший!",
-                "*мур-мур* 💚 ...ой, я же зайка!"
-            ];
-            setMood('love');
-            bunnyChar.style.animation = 'excited 0.4s ease 3';
-            setTimeout(() => {
-                bunnyChar.style.animation = 'breathe 3s ease-in-out infinite';
-            }, 1200);
-            setBunny(
-                pick(responses),
-                [
-                    { label: '🎲 Играть!', style: 'primary', action: startGame },
-                    { label: '🍽️ Меню', style: 'secondary', action: switchToMenu }
-                ],
-                'love'
-            );
-        }
-
-        function goSleepy() {
-            setBunny(
-                "Я тут немножко задремал... 😴<br>Разбудишь меня?",
-                [
-                    { label: '🐾 Просыпайся!', style: 'primary', action: startGame }
-                ],
-                'sleepy'
-            );
-        }
-
-        // ===== AR =====
-        function pinModelToWorld() {
-            if (isPinned) return;
-            const markerObj = hiroMarker.object3D;
-            const worldPos = new THREE.Vector3();
-            const worldQuat = new THREE.Quaternion();
-            const worldScale = new THREE.Vector3();
-            markerObj.updateMatrixWorld(true);
-            markerObj.matrixWorld.decompose(worldPos, worldQuat, worldScale);
-            worldRoot.object3D.position.copy(worldPos);
-            worldRoot.object3D.quaternion.copy(worldQuat);
-            worldRoot.object3D.scale.set(1, 1, 1);
-            worldRoot.setAttribute('visible', 'true');
-            isPinned = true;
-
-            markerHint.classList.add('found');
-            markerHintText.textContent = '✨ Готово! Можно наводить';
-            setTimeout(() => markerHint.classList.add('hidden'), 2500);
-        }
-
-        hiroMarker.addEventListener('markerFound', () => {
-            if (!isPinned) {
-                setTimeout(() => { if (!isPinned) pinModelToWorld(); }, 400);
+        selectDish('burger');
+        
+        // Автоматическое перемещение на весь экран
+        document.addEventListener('touchstart', startDrag, { passive: false });
+        document.addEventListener('touchmove', onDrag, { passive: false });
+        document.addEventListener('touchend', endDrag);
+        
+        setInterval(() => {
+            if (!isPinned && hiroMarker.object3D && pinnedGroup) {
+                const pos = hiroMarker.object3D.position;
+                const rot = hiroMarker.object3D.rotation;
+                if (pos && (pos.x !== 0 || pos.y !== 0 || pos.z !== 0)) {
+                    pinnedGroup.object3D.position.copy(pos);
+                    pinnedGroup.object3D.rotation.copy(rot);
+                }
             }
-        });
+        }, 100);
 
-        // Тап по зайке
-        bunnyChar.addEventListener('click', petBunny);
-
-        // АВТО-ВРАЩЕНИЕ
-        let modelRotation = 0;
-        function rotate() {
-            if (dishModelEl && dishModelEl.object3D) {
-                modelRotation += 0.005;
-                dishModelEl.object3D.rotation.y = modelRotation;
-            }
-            requestAnimationFrame(rotate);
-        }
-        setTimeout(rotate, 1000);
-
-        // Жесты — масштаб
-        let initialPinchDist = 0;
-        let initialScale = 0.15;
-        let currentScale = 0.15;
-        function getPinchDist(t1, t2) {
-            const dx = t1.clientX - t2.clientX;
-            const dy = t1.clientY - t2.clientY;
-            return Math.sqrt(dx*dx + dy*dy);
-        }
-        document.addEventListener('touchstart', (e) => {
-            if (e.target.closest('.bunny-stage') || e.target.closest('.top-bar') ||
-                e.target.closest('.menu-panel') || e.target.closest('.dish-viewer')) return;
-            if (e.touches.length === 2) {
-                initialPinchDist = getPinchDist(e.touches[0], e.touches[1]);
-                initialScale = currentScale;
-            }
-        }, { passive: true });
-        document.addEventListener('touchmove', (e) => {
-            if (e.target.closest('.bunny-stage') || e.target.closest('.top-bar') ||
-                e.target.closest('.menu-panel') || e.target.closest('.dish-viewer')) return;
-            if (e.touches.length === 2) {
-                const newDist = getPinchDist(e.touches[0], e.touches[1]);
-                const factor = newDist / initialPinchDist;
-                currentScale = Math.max(0.05, Math.min(0.5, initialScale * factor));
-                Object.values(dishes).forEach(d => {
-                    const el = document.getElementById(d.modelId);
-                    if (el && el.getAttribute('visible') === true) {
-                        el.setAttribute('scale', `${currentScale} ${currentScale} ${currentScale}`);
+        // Принудительный запуск камеры
+        window.onload = function() {
+            setTimeout(function() {
+                const scene = document.querySelector('a-scene');
+                if (scene && scene.components && scene.components.arjs) {
+                    try {
+                        scene.components.arjs.start();
+                    } catch(e) {
+                        console.log("AR start error:", e);
                     }
-                });
-            }
-        }, { passive: true });
-
-        // ===== СТАРТ =====
-        renderMenu();
-        startGame();
+                }
+            }, 500);
+        };
     </script>
 </body>
 </html>
